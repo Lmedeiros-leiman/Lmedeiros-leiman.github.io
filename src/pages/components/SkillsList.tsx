@@ -1,8 +1,8 @@
-import { useRef } from "preact/hooks";
 import { FaBootstrap, FaDocker, FaGitAlt, FaLaravel, FaLinux, FaPython, FaReact } from "react-icons/fa6";
 import { RiTailwindCssFill } from "react-icons/ri";
 import { SiRefinedgithub, SiTypescript } from "react-icons/si";
-import ToolTip from "./ToolTip";
+import ToolTip from "../../components/ToolTip";
+import Title from "./Title";
 
 export type Skill = {
     name: string;
@@ -77,9 +77,10 @@ export const MySkillsList = () => {
 
     return (
         <div className="flex flex-col items-center w-full py-16 md:py-24">
-            <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-gray-800 dark:text-gray-300 mb-12">
+            <Title>
                 Ferramentas que utilizo
-            </h2>
+            </Title>
+            
             <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-xl">
                 {Object.keys(UsedSkills).map((key) => {
                     const skill = UsedSkills[key]

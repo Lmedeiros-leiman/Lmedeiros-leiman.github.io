@@ -1,5 +1,6 @@
 import { Popover, PopoverBackdrop, PopoverButton, PopoverPanel, Transition } from "@headlessui/react";
 import { Fragment } from "preact/jsx-runtime";
+import Title from "./Title";
 
 
 
@@ -18,9 +19,9 @@ export const MyProjectsList = () => {
 
     return (<>
         <div>
-            <h2 className="w-full text-center text-3xl md:text-5xl lg:text-6xl font-bold dark:text-gray-400 text-gray-800 mb-8">
+            <Title>
                 Projetos & Experiencias
-            </h2>
+            </Title>
             <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 place-items-center gap-6 p-4">
                 {Projects.map((project, index) => {
                     return (
