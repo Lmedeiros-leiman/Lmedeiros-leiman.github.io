@@ -1,5 +1,6 @@
 
 import fotoPessoal from "../../assets/MinhaFotoFundo.jpeg";
+import { _ } from "../context/LocaleContext";
 
 export const AboutMeHero = () => {
 
@@ -9,10 +10,10 @@ export const AboutMeHero = () => {
     <div className="container mx-auto px-4 flex  flex-col md:flex-row items-center gap-8">
       <section className="flex-1 text-center md:text-left">
         <h1 className="text-4xl md:text-6xl font-bold dark:text-gray-100 text-gray-800 mb-4">
-          Leonardo Medeiros Leiman
+          { _("Name") }
         </h1>
         <p className="text-2xl md:text-3xl dark:text-gray-400 text-gray-600 font-medium">
-          Desenvolvedor Full-Stack
+          { _("Position") }
         </p>
       </section>
 
