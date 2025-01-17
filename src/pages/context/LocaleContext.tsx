@@ -15,6 +15,7 @@ export type LocaleDataType = {
     locale: string,
     localeLong: string,
     Translations: Record<string, string>,
+    changeLocale : (newLanguage : keyof (typeof validLocales)) => void
 
 }
 
@@ -33,6 +34,7 @@ const InitialData: LocaleDataType = {
         "ToolsTitle": "My favorite tools",
         "ProjectsTitle": "Projects & Experiences"
     },
+    changeLocale : () => {return}
 }
 
 
@@ -52,7 +54,41 @@ export const _ = (
 
 export const LocaleProvider: React.FC = ({ children }) => {
 
-    const [LocaleDetails, _setLocaleDetails] = useState<LocaleDataType>(InitialData);
+
+    const [LocaleDetails, _setLocaleDetails] = useState<LocaleDataType>({
+        ...InitialData,
+        changeLocale: (newLanguage : keyof (typeof validLocales)) => {
+
+            _setLocaleDetails((prevData) => {
+                return {
+                ...prevData,
+                busy: true,
+                }
+            });
+
+            WebFetcher("/locale/portifolio/" + newLanguage + ".json")
+            .then( (response) => {
+                _setLocaleDetails((prevData) => {
+                    return {
+                        ...prevData,
+                        locale: newLanguage,
+                        localeLong: validLocales[newLanguage],
+                        Translations: response,
+                    }
+                });
+            })
+            .finally( () => {
+
+                _setLocaleDetails((prevData) => {
+                    return {
+                    ...prevData,
+                    busy: false,
+                    }
+                });
+            })
+
+        }
+    });
 
     useEffect(() => {
         const UserNavigatorLanguage = navigator.language.split("-")[0];

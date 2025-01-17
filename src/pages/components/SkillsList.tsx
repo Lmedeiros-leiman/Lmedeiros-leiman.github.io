@@ -3,6 +3,7 @@ import { RiTailwindCssFill } from "react-icons/ri";
 import { SiRefinedgithub, SiTypescript } from "react-icons/si";
 import ToolTip from "../../components/ToolTip";
 import Title from "./Title";
+import { _ } from "../context/LocaleContext";
 
 export type Skill = {
     name: string;
@@ -78,7 +79,7 @@ export const MySkillsList = () => {
     return (
         <div className="flex flex-col items-center w-full py-16 md:py-24">
             <Title>
-                Ferramentas que utilizo
+                { _("ToolsTitleProjetos & Experiencias") }
             </Title>
             
             <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-xl">

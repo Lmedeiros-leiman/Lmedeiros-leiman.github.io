@@ -2,6 +2,7 @@ import { Popover, PopoverBackdrop, PopoverButton, PopoverPanel, Transition } fro
 import { Fragment } from "preact/jsx-runtime";
 import Title from "./Title";
 import React from "preact/compat";
+import { _ } from "../context/LocaleContext";
 
 export type Project = {
     "title": string,
@@ -108,7 +109,7 @@ export const MyProjectsList = () => {
     return (<>
         <div>
             <Title>
-                Projetos & Experiencias
+                { _("ProjectsTitle")}
             </Title>
             <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 place-items-center gap-6 p-4">
                 {Projects.map((project, index) => {
