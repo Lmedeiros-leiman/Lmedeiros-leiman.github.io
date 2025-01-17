@@ -37,7 +37,7 @@ export const ToolTip: React.FC<{ content: React.ReactNode, children?: React.Reac
         </PopoverButton>
         {isVisible &&
             (
-                <div className="absolute  bg-black text-white top-full mt-2  mb-2 px-3 py-1.5 text-sm  dark:bg-gray-700 rounded-md shadow-md z-30 " >
+                <div className="absolute  bg-black text-white top-full mt-2  mb-2 px-3 py-1.5 text-sm   rounded-md shadow-md z-30 " >
                     {content}
                 </div>
             )
