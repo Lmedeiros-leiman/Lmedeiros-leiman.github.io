@@ -1,6 +1,11 @@
+import { WebFetcher } from "../../libs/WebFetcher";
 
 
 export const Navbar = () => {
+
+    WebFetcher("google.com").then(response => {
+        console.log(response)
+    })
 
     return (
     <aside className="bg-black text-white font-bold px-6  py-2 rounded-lg">
