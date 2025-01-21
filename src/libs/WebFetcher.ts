@@ -26,7 +26,7 @@ export const WebFetcher = async (url: string, configurations: Partial<WebFetcher
 
     const requestURL = url //isLocal ? new URL(url, configurations.baseUrl) : url 
 
-    console.log(`CURRENT URL: `)
+    console.log(`CURRENT BASE URL:  ${config.baseUrl}`)
     console.log(`MAKING A REQUEST TO ${requestURL}`)
 
     const cacheStorage = await caches.open(config.cacheStorage);
