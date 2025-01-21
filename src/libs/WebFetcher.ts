@@ -2,10 +2,6 @@
 // 
 //
 //
-//
-//
-
-import { URL } from "url"
 
 export type WebFetcherConfig = {
     cache: boolean
@@ -26,10 +22,11 @@ const defaultConfig: WebFetcherConfig = {
 export const WebFetcher = async (url: string, configurations: Partial<WebFetcherConfig> = defaultConfig) => {
     const config: WebFetcherConfig = { ...defaultConfig, ...configurations }
 
-    const isLocal = !/^https?:\/\//.test(url);
+    //const isLocal = !/^https?:\/\//.test(url);
 
-    const requestURL = isLocal ? new URL(url, configurations.baseUrl) : url 
+    const requestURL = url //isLocal ? new URL(url, configurations.baseUrl) : url 
 
+    console.log(`CURRENT URL: `)
     console.log(`MAKING A REQUEST TO ${requestURL}`)
 
     const cacheStorage = await caches.open(config.cacheStorage);
