@@ -8,7 +8,7 @@ const publicDir = path.resolve(__dirname, "public/");
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [preact()],
-  base : process.env.NODE_ENV === 'production' ? "/portifolio/" : "/",
+  base : process.env.NODE_ENV === 'production' ? "portifolio/" : "/",
   root,
   publicDir,
   resolve: {

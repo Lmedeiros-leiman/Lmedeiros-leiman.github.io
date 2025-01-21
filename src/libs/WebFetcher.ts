@@ -24,7 +24,7 @@ export const WebFetcher = async (url: string, configurations: Partial<WebFetcher
 
     //const isLocal = !/^https?:\/\//.test(url);
 
-    const requestURL = url //isLocal ? new URL(url, configurations.baseUrl) : url 
+    const requestURL = (config.baseUrl.replace("/","")) + url //isLocal ? new URL(url, configurations.baseUrl) : url 
 
     console.log(`CURRENT BASE URL:  ${config.baseUrl}`)
     console.log(`MAKING A REQUEST TO ${requestURL}`)
