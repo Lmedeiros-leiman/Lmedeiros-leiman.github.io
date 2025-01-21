@@ -20,7 +20,7 @@ const defaultConfig: WebFetcherConfig = {
     cacheTime: 1000 * 60 * 30, // 30 minutes by default
     cacheStorage: "Default",
     target: "json",
-    baseUrl : 
+    baseUrl: import.meta.env.BASE_URL
 }
 
 export const WebFetcher = async (url: string, configurations: Partial<WebFetcherConfig> = defaultConfig) => {
@@ -28,7 +28,7 @@ export const WebFetcher = async (url: string, configurations: Partial<WebFetcher
 
     const isLocal = !/^https?:\/\//.test(url);
 
-    const requestURL = isLocal ? new URL(url, import.meta.env.BASE_URL) : url 
+    const requestURL = isLocal ? new URL(url, configurations.baseUrl) : url 
 
     console.log(`MAKING A REQUEST TO ${requestURL}`)
 
