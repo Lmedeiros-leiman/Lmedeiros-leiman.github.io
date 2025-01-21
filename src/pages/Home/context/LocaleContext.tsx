@@ -1,6 +1,6 @@
 import { createContext } from "preact";
 import { useContext, useEffect, useState } from "preact/hooks";
-import { WebFetcher } from "../../libs/WebFetcher";
+import { WebFetcher } from "../../../libs/WebFetcher";
 
 
 export type TranslationKeys = {

@@ -1,7 +1,7 @@
 import { FaBootstrap, FaDocker, FaGitAlt, FaLaravel, FaLinux, FaPython, FaReact } from "react-icons/fa6";
 import { RiTailwindCssFill } from "react-icons/ri";
 import { SiRefinedgithub, SiTypescript } from "react-icons/si";
-import ToolTip from "../../components/ToolTip";
+import ToolTip from "../../../components/ToolTip";
 import Title from "./Title";
 import { _ } from "../context/LocaleContext";
 

@@ -1,5 +1,5 @@
 
-import fotoPessoal from "../../assets/MinhaFotoFundo.jpeg";
+import fotoPessoal from "../../../assets/MinhaFotoFundo.jpeg";
 import { _ } from "../context/LocaleContext";
 
 export const AboutMeHero = () => {

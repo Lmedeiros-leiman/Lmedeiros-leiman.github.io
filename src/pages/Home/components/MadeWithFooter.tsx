@@ -1,6 +1,6 @@
 import { SiRefinedgithub, SiVite } from "react-icons/si";
 
-import Preact from "../../assets/preact.svg";
+import Preact from "@/assets/preact.svg";
 
 
 
