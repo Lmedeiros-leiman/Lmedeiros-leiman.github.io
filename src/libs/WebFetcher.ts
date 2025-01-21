@@ -5,25 +5,35 @@
 //
 //
 
+import { URL } from "url"
+
 export type WebFetcherConfig = {
     cache: boolean
     cacheTime: number // in Miliseconds
     cacheStorage: "Default" | string
     target: "json" | "text" | "blob"
+    baseUrl : string,
 }
 
 const defaultConfig: WebFetcherConfig = {
     cache: true,
     cacheTime: 1000 * 60 * 30, // 30 minutes by default
     cacheStorage: "Default",
-    target: "json"
+    target: "json",
+    baseUrl : 
 }
 
 export const WebFetcher = async (url: string, configurations: Partial<WebFetcherConfig> = defaultConfig) => {
     const config: WebFetcherConfig = { ...defaultConfig, ...configurations }
 
+    const isLocal = !/^https?:\/\//.test(url);
+
+    const requestURL = isLocal ? new URL(url, import.meta.env.BASE_URL) : url 
+
+    console.log(`MAKING A REQUEST TO ${requestURL}`)
+
     const cacheStorage = await caches.open(config.cacheStorage);
-    const cachedResult = await cacheStorage.match(url);
+    const cachedResult = await cacheStorage.match(requestURL);
 
     if (cachedResult) {
         const cachedTimestamp = cachedResult.headers.get("X-Timestramp");
@@ -45,14 +55,14 @@ export const WebFetcher = async (url: string, configurations: Partial<WebFetcher
             return data
         } else {
             // deletes the stale data
-            await cacheStorage.delete(url)
+            await cacheStorage.delete(requestURL)
         }
     }
 
 
 
     // if the data is not already in storaged (or failed to fetch), fetch it from the web
-    const fetchedData = await fetch(url);
+    const fetchedData = await fetch(requestURL);
 
     if (fetchedData.status >= 200 && fetchedData.status <= 400) {
 
@@ -64,7 +74,7 @@ export const WebFetcher = async (url: string, configurations: Partial<WebFetcher
         response = new Response(response.body, {headers: header});
 
         if (config.cache) {
-            await cacheStorage.put(url, response)
+            await cacheStorage.put(requestURL, response)
         }
         
         switch (config.target) {

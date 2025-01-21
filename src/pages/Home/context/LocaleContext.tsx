@@ -53,8 +53,6 @@ export const _ = (
 
 
 export const LocaleProvider: React.FC = ({ children }) => {
-
-
     const [LocaleDetails, _setLocaleDetails] = useState<LocaleDataType>({
         ...InitialData,
         changeLocale: (newLanguage : keyof (typeof validLocales)) => {
@@ -66,7 +64,7 @@ export const LocaleProvider: React.FC = ({ children }) => {
                 }
             });
 
-            WebFetcher("/locale/portifolio/" + newLanguage + ".json")
+            WebFetcher(`/locale/portifolio/${newLanguage}.json`)
             .then( (response) => {
                 _setLocaleDetails((prevData) => {
                     return {
