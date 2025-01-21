@@ -3,6 +3,8 @@
 //
 //
 
+import path from "path"
+
 export type WebFetcherConfig = {
     cache: boolean
     cacheTime: number // in Miliseconds
@@ -22,9 +24,8 @@ const defaultConfig: WebFetcherConfig = {
 export const WebFetcher = async (url: string, configurations: Partial<WebFetcherConfig> = defaultConfig) => {
     const config: WebFetcherConfig = { ...defaultConfig, ...configurations }
 
-    //const isLocal = !/^https?:\/\//.test(url);
+    const requestURL = new URL(url, config.baseUrl).toString()
 
-    const requestURL = config.baseUrl + url //isLocal ? new URL(url, configurations.baseUrl) : url 
 
     console.log(`BASE URL REQUEST : ${url}`)
     console.log(`CURRENT BASE URL:  ${config.baseUrl}`)
