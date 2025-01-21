@@ -8,9 +8,6 @@ export const LocalePicker = () => {
 
     const { changeLocale, locale } = useLocale()
 
-
-
-
     return (<Menu>
         <MenuButton className=" p-0.5 select-none bg-black hover:bg-slate-900 text-white hover:cursor-pointer transition-all  hover:ring-2 rounded-lg ring:ring-white ">
             <div className="flex py-1 px-1.5 justify-between w-full gap-1 items-center text-nowrap">

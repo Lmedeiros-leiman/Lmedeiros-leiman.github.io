@@ -20,9 +20,8 @@ render(
 <StrictMode>
 <LocaleProvider>
   <section className="w-full max-w-screen-2xl  min-h-screen bg-gray-50 dark:bg-slate-900 dark:text-white">
-    <header className="flex bg-black mb-24 justify-end items-center w-full px-4 py-2">
-      <Navbar />
-    </header>
+   
+    <Navbar />
 
     <AboutMeHero />
     
