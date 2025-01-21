@@ -23,12 +23,11 @@ export const WebFetcher = async (url: string, configurations: Partial<WebFetcher
     const config: WebFetcherConfig = { ...defaultConfig, ...configurations }
 
     //const isLocal = !/^https?:\/\//.test(url);
-    if (url.charAt(0) != "/") {
-        url = "/"+url;
-    }
 
-    const requestURL = url//(config.baseUrl.replace("/","")) + url //isLocal ? new URL(url, configurations.baseUrl) : url 
 
+    const requestURL = (config.baseUrl.replace("/","")) + url //isLocal ? new URL(url, configurations.baseUrl) : url 
+
+    console.log(`BASE URL REQUEST : ${url}`)
     console.log(`CURRENT BASE URL:  ${config.baseUrl}`)
     console.log(`MAKING A REQUEST TO ${requestURL}`)
 
