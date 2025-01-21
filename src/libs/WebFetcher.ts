@@ -3,7 +3,6 @@
 //
 //
 
-
 export type WebFetcherConfig = {
     cache: boolean
     cacheTime: number // in Miliseconds
@@ -20,15 +19,13 @@ const defaultConfig: WebFetcherConfig = {
     baseUrl: import.meta.env.BASE_URL
 }
 
+
+
+
 export const WebFetcher = async (url: string, configurations: Partial<WebFetcherConfig> = defaultConfig) => {
     const config: WebFetcherConfig = { ...defaultConfig, ...configurations }
 
-    const requestURL = new URL(url, config.baseUrl).toString()
-
-
-    console.log(`BASE URL REQUEST : ${url}`)
-    console.log(`CURRENT BASE URL:  ${config.baseUrl}`)
-    console.log(`MAKING A REQUEST TO ${requestURL}`)
+    const requestURL = (config.baseUrl + url).replace("//", "/");
 
     const cacheStorage = await caches.open(config.cacheStorage);
     const cachedResult = await cacheStorage.match(requestURL);
