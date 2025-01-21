@@ -7,7 +7,6 @@ const publicDir = path.resolve(__dirname, "public/");
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/portifolio/",
   plugins: [preact()],
   root,
   publicDir,
