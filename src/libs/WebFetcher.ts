@@ -3,7 +3,6 @@
 //
 //
 
-import path from "path"
 
 export type WebFetcherConfig = {
     cache: boolean
