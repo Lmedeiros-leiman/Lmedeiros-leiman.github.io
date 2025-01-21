@@ -1,6 +1,11 @@
-export const BrandIcon = () => {
+
+
+
+export const BrandIcon : React.FC<{ link? : string | undefined}> = ({link = undefined}) => {
   return (
-    <div className="dark:fill-white">
+    <a className="dark:fill-white" 
+      href={ link != undefined ? link : "" }
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         id="yt-ringo2-svg_yt17"
@@ -28,7 +33,7 @@ export const BrandIcon = () => {
           <path d="M92.6517 11.4999C92.6517 8.51994 92.3517 6.30994 88.9217 6.30994C85.6917 6.30994 84.9717 8.45994 84.9717 11.6199V13.7899C84.9717 16.8699 85.6317 19.1099 88.8417 19.1099C91.3817 19.1099 92.6917 17.8399 92.5417 15.3799L90.2917 15.2599C90.2617 16.7799 89.9117 17.3999 88.9017 17.3999C87.6317 17.3999 87.5717 16.1899 87.5717 14.3899V13.5499H92.6517V11.4999ZM88.8617 7.96994C90.0817 7.96994 90.1717 9.11994 90.1717 11.0699V12.0799H87.5717V11.0699C87.5717 9.13994 87.6517 7.96994 88.8617 7.96994Z"></path>
         </g>
       </svg>
-    </div>
+    </a>
   );
 };
 
