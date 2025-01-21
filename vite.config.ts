@@ -20,6 +20,7 @@ export default defineConfig({
       },
       input: {
         home: path.join(root, "index.html"),
+        blog: path.join(root,"blog","/index.html"),
         youtubeClone: path.join(root, "youtube-clone", "/index.html"),
       },
     },
