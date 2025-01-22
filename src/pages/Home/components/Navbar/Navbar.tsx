@@ -9,6 +9,8 @@ export const Navbar = () => {
             <a className="rounded-lg hover:bg-slate-900 border border-black hover:border-slate-600 p-1 px-2" href={"/blog/"}>Blog</a>
         </ul>
         
+        
+
         <LocalePicker />
         
     </header>)

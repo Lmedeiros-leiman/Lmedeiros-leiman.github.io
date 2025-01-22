@@ -8,11 +8,12 @@ import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { BiHistory } from "react-icons/bi";
 import { useState } from "preact/hooks";
 import {
-  NotificationIcon,
+  MicrophoneIcon,
   PlusIcon,
 } from "./assets/icons/YoutubeIcons";
 import { HeaderSidebarGroup } from "./components/Header/HeaderSidebarGroup";
-
+import { SearchBar } from "./components/Header/SearchBar";
+import { NotificationPanel } from "./components/Header/Notification";
 
 //bg-white/[0.1]
 
@@ -39,44 +40,39 @@ export const SidebarButtonGroup: React.FC = ({ children }) => {
   return <ul className=" p-3 ">{children}</ul>;
 };
 
-
-
 export const EntryComponent = () => {
   const [visible, setVisibility] = useState(true);
 
   return (
     <>
       <main className="w-full min-h-screen flex flex-wrap bg-white dark:bg-[#0f0f0f] text-black dark:text-white">
-        <header className="flex ps-6 pe-10 justify-between h-14 w-full  items-center ">
+        <header className="flex ps-6 pe-10 justify-between gap-4 h-14 w-full  items-center ">
           <HeaderSidebarGroup
             onButtonClick={() => {
               setVisibility(!visible);
             }}
           />
-          <form>
-            <input />
-          </form>
+          <SearchBar />
+
+          <div className="bg-white/10 p-2 rounded-full hover:bg-white/20 cursor-pointer">
+            <MicrophoneIcon />
+          </div>
 
           <div className="flex gap-6 items-center">
-            <button className="flex items-center bg-white/[0.05] rounded-full font-bold text-sm gap-1 px-3 py-2">
-              <span>
-                <PlusIcon />{" "}
-              </span>
+            <button className="flex items-center hover:bg-white/20 bg-white/10 rounded-full font-bold text-sm gap-0.5 px-2.5 py-1.5">
+              <div>
+                <PlusIcon />
+              </div>
               <span>Create</span>
             </button>
+          </div>
+          <div className="relative flex items-center hover:bg-white/10 cursor-pointer  rounded-full p-2">
+            <NotificationPanel />
+          </div>
+          
 
-            <div className="relative flex items-center hover:bg-white/[0.05]  rounded-full p-2">
-              <div className="w-6 h-6">
-                <NotificationIcon />
-              </div>
-              <div className="absolute top-1 -right-0.5 bg-[#e1002d] border-2 border-solid border-[#000000cc] text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center  ">
-                20
-              </div>
-            </div>
-
-            <div className="w-8 h-8">
-              <img src={"./assets/user.png"} />
-            </div>
+          <div className="w-8 h-8">
+            <img src={"./assets/user.png"} />
           </div>
         </header>
 
@@ -169,9 +165,7 @@ export const test = () => {
     <>
       <aside className=" w-60 dark:bg-[#282828] max-h-screen overflow-auto">
         <header className="flex px-5 justify-center items-center">
-          <div className="  gap-6 h-14  items-center w-full flex">
-           
-          </div>
+          <div className="  gap-6 h-14  items-center w-full flex"></div>
         </header>
 
         {/* First 3 options */}
