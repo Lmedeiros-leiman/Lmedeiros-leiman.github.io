@@ -54,7 +54,7 @@ export const NotificationBox: React.FC = ({ children }) => {
         </PopoverButton>
         <PopoverPanel
           anchor="left"
-          className="absolute flex flex-grow w-[480px] shadow bg-white dark:bg-[#282828] text-black dark:text-white left-full  mt-4 rounded-lg"
+          className="absolute flex flex-grow w-[480px] shadow cursor-default bg-white dark:bg-[#282828] text-black dark:text-white left-full  mt-4 rounded-lg"
         >
           <ul className="w-full py-2">
             <NotificationChoiceButton icon={<EyeIconSlashed />} >Hide notification</NotificationChoiceButton>
@@ -70,7 +70,7 @@ export const NotificationBox: React.FC = ({ children }) => {
 export const NotificationPanel = () => {
   return (
     <Popover>
-      <PopoverButton className="w-6 h-6 flex focus:outline-none ">
+      <PopoverButton className="w-6 h-6 flex  focus:outline-none ">
         <NotificationIcon />
         <div className="absolute top-1 select-none -right-0.5 bg-[#e1002d] border-2 border-solid border-[#000000cc] text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center  ">
           20
@@ -78,7 +78,7 @@ export const NotificationPanel = () => {
       </PopoverButton>
       <PopoverPanel
         anchor="left"
-        className="absolute shadow-2xl flex flex-grow w-[480px] h-[642px] p-0 bg-white dark:bg-[#282828] text-black dark:text-white left-full  mt-4 rounded-lg "
+        className="absolute cursor-default shadow-2xl flex flex-grow w-[480px] h-[642px] p-0 bg-white dark:bg-[#282828] text-black dark:text-white left-full  mt-4 rounded-lg "
       >
         <div className="w-full h-full">
           <header className="flex w-full ps-4 pe-2 pt-2 pb-1 items-center justify-between border-b border-white/20 ">
