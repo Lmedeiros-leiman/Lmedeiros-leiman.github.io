@@ -2,7 +2,6 @@ import { render } from "preact";
 
 import userAvatar from "./assets/user.png";
 
-import "../../index.css";
 import "./main.css";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { BiHistory } from "react-icons/bi";
