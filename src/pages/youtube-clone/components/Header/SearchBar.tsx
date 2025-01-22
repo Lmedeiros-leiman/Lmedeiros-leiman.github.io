@@ -4,14 +4,14 @@ import { FaHistory } from "react-icons/fa";
 
 export const HistoryItem: React.FC = ({ children }) => {
   return (
-    <div className="flex justify-between w-full py-1 px-5 hover:bg-white/10">
+    <div className="flex justify-between w-full py-1 px-5 cursor-default hover:bg-black/10 dark:hover:bg-white/10">
       <div className="flex gap-5 items-center ">
         <span>
           <FaHistory />{" "}
         </span>
         <span>{children}</span>
       </div>
-      <aside className="text-[#3ea6ff] text-sm hover:underline">Remove</aside>
+      <aside className="text-[#3ea6ff] cursor-pointer text-sm hover:underline">Remove</aside>
     </div>
   );
 };
@@ -23,7 +23,7 @@ export const SearchBar = () => {
     <>
       <div className="flex flex-grow justify-center px-4 ms-10">
         <form className="w-full relative ms-8 flex  ">
-          <div className="w-full flex items-center focus-within:border border-[#303030] ps-5 border border-white/20 rounded-s-full  bg-[#121212] focus-within:border-blue-600">
+          <div className="w-full flex ps-5  rounded-s-full items-center border border-black/20 dark:border-[#303030]   dark:bg-[#121212] focus-within:border-blue-600">
             <div
               className={
                 (showDropdown ? "block" : "hidden") +
@@ -51,7 +51,7 @@ export const SearchBar = () => {
               />
             </form>
 
-            <button className=" mx-2 w-max min-w-5 h-max">
+            <button className=" mx-2 w-max min-w-5 h-max ">
               <img
                 width="100%"
                 height="100%"
@@ -60,7 +60,7 @@ export const SearchBar = () => {
             </button>
           </div>
 
-          <div className="bg-white/[0.08] cursor-pointer border-[#303030] w-16 flex flex-shrink-0 justify-center rounded-e-full h-full items-center">
+          <div className=" bg-[#f8f8f8] hover:bg-[#e4e4e4] dark:bg-[white/10]  cursor-pointer border border-s-0 border-black/20 dark:border-[#303030] w-16 flex flex-shrink-0 justify-center rounded-e-full h-full items-center">
             <span className="text-4xl ">
               <SearchIcon />
             </span>
@@ -69,7 +69,7 @@ export const SearchBar = () => {
           <div
             className={
               (showDropdown ? "block" : "hidden") +
-              " rounded-xl pt-4 pb-2 min-w-[544px]  w-max absolute top-[44px] z-40 left-0 bg-[#212121]"
+              " rounded-xl pt-4 pb-2 min-w-[544px] shadow-2xl w-max absolute top-[44px] z-40 left-0 bg-white dark:bg-[#212121]"
             }
           >
             <ul>

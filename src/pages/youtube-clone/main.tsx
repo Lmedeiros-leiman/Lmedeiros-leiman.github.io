@@ -53,12 +53,12 @@ export const EntryComponent = () => {
           />
           <SearchBar />
 
-          <div className="bg-white/10 p-2 rounded-full hover:bg-white/20 cursor-pointer">
+          <div className=" bg-black/5 dark:bg-white/10 p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer">
             <MicrophoneIcon />
           </div>
 
           <div className="flex gap-6 items-center">
-            <button className="flex items-center hover:bg-white/20 bg-white/10 rounded-full font-bold text-sm gap-0.5 px-2.5 py-1.5">
+            <button className="flex items-center bg-black/5 dark:bg-white/10  rounded-full font-bold text-sm gap-0.5 px-2.5 py-1.5">
               <div>
                 <PlusIcon />
               </div>
