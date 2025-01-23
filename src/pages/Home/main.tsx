@@ -1,7 +1,4 @@
 import { render } from "preact";
-import "../../index.css";
-
-
 
 import AboutMeHero from "./components/AboutMe";
 import Navbar from "./components/Navbar/Navbar";
