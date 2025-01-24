@@ -1,3 +1,5 @@
+import "./main.css"
+
 import { render } from "preact";
 
 import userAvatar from "./assets/user.png";
