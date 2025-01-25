@@ -2,6 +2,7 @@
 # Portifolio
 
 - Adicionar projetos novos na lista de experiencias.
+  - Adicionar link para o clone youtube
 
 # Clone Youtube
 
