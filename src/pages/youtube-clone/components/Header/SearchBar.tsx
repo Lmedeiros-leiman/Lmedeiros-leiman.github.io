@@ -60,7 +60,7 @@ export const SearchBar = () => {
             </button>
           </div>
 
-          <div className=" bg-[#f8f8f8] hover:bg-[#e4e4e4] dark:bg-[white/10]  cursor-pointer border border-s-0 border-black/20 dark:border-[#303030] w-16 flex flex-shrink-0 justify-center rounded-e-full h-full items-center">
+          <div className=" bg-[#f8f8f8] dark:bg-white/10 hover:bg-[#e4e4e4]  cursor-pointer border border-s-0 border-black/20 dark:border-[#303030] w-16 flex flex-shrink-0 justify-center rounded-e-full h-full items-center">
             <span className="text-4xl ">
               <SearchIcon />
             </span>
