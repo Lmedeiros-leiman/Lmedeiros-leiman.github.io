@@ -33,12 +33,6 @@ import {
 import { HeaderSidebarGroup } from "./Header/HeaderSidebarGroup";
 import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import UserAvatar from "../assets/user.png";
-import {
-  Popover,
-  PopoverBackdrop,
-  PopoverButton,
-  PopoverPanel,
-} from "@headlessui/react";
 
 const SidebarCompactButton: React.FC<{
   children: ComponentChildren;

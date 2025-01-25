@@ -2,10 +2,6 @@ import "./main.css";
 
 import { render } from "preact";
 
-import userAvatar from "./assets/user.png";
-
-import { ChevronRightIcon } from "@heroicons/react/24/outline";
-import { BiHistory } from "react-icons/bi";
 import { useState } from "preact/hooks";
 import { MicrophoneIcon, PlusIcon } from "./assets/icons/YoutubeIcons";
 import { HeaderSidebarGroup } from "./components/Header/HeaderSidebarGroup";
