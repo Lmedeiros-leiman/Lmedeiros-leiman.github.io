@@ -1,10 +1,54 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 
 @import "../index.css";
 
+/* Default styles (light mode) */
+:root {
+  --scrollbar-track: #f1f1f1; /* Light track color */
+  --scrollbar-thumb: #c0c0c0; /* Light thumb color */
+  --scrollbar-thumb-hover: #a0a0a0; /* Light hover color */
+  --scrollbar-thumb-active: #808080; /* Light active color */
+}
 
+/* Dark mode styles using prefers-color-scheme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --scrollbar-track: #0f0f0f; /* Dark track color */
+    --scrollbar-thumb: hsla(0, 0%, 100%, 0.67); /* Dark thumb color */
+    --scrollbar-thumb-hover: #616161; /* Dark hover color */
+    --scrollbar-thumb-active: #757575; /* Dark active color */
+  }
+}
 
+/* Apply the scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--scrollbar-thumb-active);
+}
+
+/* Firefox support */
+* {
+  scrollbar-width: thin; /* Thin scrollbar */
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); /* Thumb and track colors */
+}
 
 body {
-    font-family: 'Roboto', Verdana, Geneva, Tahoma, sans-serif
+  font-family: "Roboto", Verdana, Geneva, Tahoma, sans-serif;
 }
