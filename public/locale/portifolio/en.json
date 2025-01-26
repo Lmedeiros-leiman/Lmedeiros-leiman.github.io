@@ -2,5 +2,11 @@
     "Name": "Leonardo Medeiros Leiman",
     "Position": "Full Stack Developer",
     "ToolsTitle": "My favorite tools",
-    "ProjectsTitle":"Projects & Experiences"
+    "ProjectsTitle":"Projects & Experiences",
+
+    "YoutubeProjectTitle": "Youtube Clone",
+    "YoutubeProjectDescription": "<p>Clone do youtube</p>",
+    "YoutubeProjectTitleb": "",
+    "YoutubeProjectTitlec": "",
+    "YoutubeProjectTitled": ""
 }
