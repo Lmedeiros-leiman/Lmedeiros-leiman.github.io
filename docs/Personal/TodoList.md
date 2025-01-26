@@ -6,11 +6,11 @@
 
 # Clone Youtube
 
-- Adicionar barra de entrada (apenas visual)
+- Adicionar Filtro na página inicial
+  - Remover barra de scroll e adicionar botões laterais
 - Adicionar lista de videos
-- Adicionar barra lateral
-  - Auto-compactar em telas grandes
-  - Modal em telas pequenas.
+
+- Adicionar página de "visualização" do video.
 
 - POTENCIALMENTE : adicionar página de vídeo.
 - POTENCIALMENTE : adicionar página de canal.
