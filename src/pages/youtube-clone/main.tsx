@@ -78,16 +78,19 @@ export const EntryComponent = () => {
             }}
             visible={visible}
           ></Sidebar>
-
+          
+          
           {pageShowed === "Home" ? (
-            <>
-              <HomePage pageController={_SetPageShowed} />
-            </>
+            <div className="ps-16 w-full flex flex-wrap">
+              <HomePage _pageController={_SetPageShowed} />
+              </div>
           ) : (
-            <>
+            <div className="ps-16 w-full flex flex-wrap">
               <VideoPage pageController={_SetPageShowed} />
-            </>
+              </div>
           )}
+          
+
         </section>
       </main>
     </>

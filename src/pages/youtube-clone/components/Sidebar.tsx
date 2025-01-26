@@ -211,8 +211,7 @@ const FullSidebar: React.FC<{
 
 const MinimalSidebar = () => {
   return (
-    <>
-      <aside className="p-1 gap-0 flex flex-col h-full w-min   bg-white dark:bg-[#0f0f0f] text-black dark:text-white">
+      <aside className="p-1 w-min fixed left-0 h-full z-50 bg-white dark:bg-[#0f0f0f] text-black dark:text-white">
         <SidebarCompactButton icon={<House />}>Home</SidebarCompactButton>
         <SidebarCompactButton icon={<Shorts />}>Shorts</SidebarCompactButton>
         <SidebarCompactButton icon={<Subscriptions />}>
@@ -220,7 +219,6 @@ const MinimalSidebar = () => {
         </SidebarCompactButton>
         <SidebarCompactButton icon={<YouIcon />}>You</SidebarCompactButton>
       </aside>
-    </>
   );
 };
 
@@ -261,8 +259,8 @@ export const Sidebar: React.FC<{
 
 
   return (<>
-  { ( showSidebar && !IsBigScreen && (<aside> <MinimalSidebar  /></aside>)) }
-  <div className=" ">
+  { ( showSidebar && !IsBigScreen && ( <MinimalSidebar  />)) }
+  <div>
     <div className={ (visible ? " w-full  " : " w-0 ") + " z-40 h-screen fixed  top-0 left-0  bg-black/50"}></div>
     <aside className={ (visible ? " w-60" : " w-0") +"  z-50 h-screen fixed top-0 left-0 transition-all bg-white dark:bg-[#0f0f0f] text-black dark:text-white"}>
       { visible && <FullSidebar showBrand={true} onBrandClick={onInnerButtonClick} />}
