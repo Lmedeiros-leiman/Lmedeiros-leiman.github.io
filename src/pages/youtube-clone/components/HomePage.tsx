@@ -54,7 +54,7 @@ const ScrollableFixedHeightMenu: FC = ({ children }) => {
   };
 
   useEffect(() => {
-    updateScrollState(); // Initial check
+    updateScrollState();
 
     const ref = scrollRef.current;
     if (ref) {
@@ -90,36 +90,38 @@ const ScrollableFixedHeightMenu: FC = ({ children }) => {
   );
 };
 
+export const TagsMenu: FC = () => {
+
+  return (<ScrollableFixedHeightMenu>
+    <button className=" text-white rounded-md font-semibold bg-[#0f0f0f] dark:bg-white dark:text-black cursor-pointer min-w-3 h-8 px-3 text-sm m-3 ms-0">
+      All
+    </button>
+    <SelectableButton>Sports</SelectableButton>
+    <SelectableButton>Videogames</SelectableButton>
+    <SelectableButton>Minecraft</SelectableButton>
+    <SelectableButton>Television</SelectableButton>
+    <SelectableButton>Game of thrones</SelectableButton>
+    <SelectableButton>Reading</SelectableButton>
+    <SelectableButton>Lord of the rings</SelectableButton>
+    <SelectableButton>Reading</SelectableButton>
+    <SelectableButton>Testing</SelectableButton>
+    <SelectableButton>Coding</SelectableButton>
+    <SelectableButton>Test</SelectableButton>
+    <SelectableButton>Art</SelectableButton>
+    <SelectableButton>Showcase</SelectableButton>
+    <SelectableButton>Dragon Ball</SelectableButton>
+  </ScrollableFixedHeightMenu>)
+}
+
 export const HomePage: FC<{
   pageController: Dispatch<StateUpdater<string>>;
 }> = ({ pageController }) => {
   return (
     <article className="flex-grow w-min overflow-x-hidden">
       <header className="flex w-full ">
-        <ScrollableFixedHeightMenu>
-          <button className=" text-white rounded-md font-semibold bg-[#0f0f0f] dark:bg-white dark:text-black cursor-pointer min-w-3 h-8 px-3 text-sm m-3 ms-0">
-            All
-          </button>
-          <SelectableButton>Sports</SelectableButton>
-          <SelectableButton>Videogames</SelectableButton>
-          <SelectableButton>Television</SelectableButton>
-          <SelectableButton>Reading</SelectableButton>
-          <SelectableButton>Lord of the rings</SelectableButton>
-          <SelectableButton>Reading</SelectableButton>
-          <SelectableButton>Testing</SelectableButton>
-          <SelectableButton>Coding</SelectableButton>
-          <SelectableButton>Test</SelectableButton>
-          <SelectableButton>Art</SelectableButton>
-          <SelectableButton>Showcase</SelectableButton>
-          <SelectableButton>Dragon Ball</SelectableButton>
-
-          <SelectableButton>Dragon Ball</SelectableButton>
-          <SelectableButton>Dragon Ball</SelectableButton>
-          <SelectableButton>Dragon Ball</SelectableButton>
-          <SelectableButton>Dragon Ball</SelectableButton>
-        </ScrollableFixedHeightMenu>
+      <TagsMenu/>
       </header>
-      <ul className="w-full ">b</ul>
+      <ul className="w-full "></ul>
     </article>
   );
 };
