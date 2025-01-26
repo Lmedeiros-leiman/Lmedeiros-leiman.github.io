@@ -8,6 +8,8 @@ import { HeaderSidebarGroup } from "./components/Header/HeaderSidebarGroup";
 import { SearchBar } from "./components/Header/SearchBar";
 import { NotificationPanel } from "./components/Header/Notification";
 import { Sidebar } from "./components/Sidebar";
+import { HomePage } from "./components/HomePage";
+import { VideoPage } from "./components/VideoPage";
 
 export const SidebarButton: React.FC<{
   children: preact.ComponentChildren;
@@ -34,12 +36,12 @@ export const SidebarButtonGroup: React.FC = ({ children }) => {
 
 export const EntryComponent = () => {
   const [visible, setVisibility] = useState(false);
-  const [showSidebar, _SetShowSidebar] = useState(true);
+  const [pageShowed, _SetPageShowed] = useState("Home");
 
   return (
     <>
       <main className="w-full min-h-screen flex flex-wrap bg-white dark:bg-[#0f0f0f] text-black dark:text-white">
-        <header className="flex ps-6 pe-10 justify-between gap-4 h-14 w-full  items-center fixed top-0 left-0 z-30 bg-white dark:bg-[#0f0f0f] text-black dark:text-white">
+        <header className="flex ps-6 pe-10 justify-between gap-4 h-14 w-full  items-center sticky top-0 left-0 z-30 bg-white dark:bg-[#0f0f0f] text-black dark:text-white">
           <HeaderSidebarGroup
             onButtonClick={() => {
               setVisibility(!visible);
@@ -68,41 +70,25 @@ export const EntryComponent = () => {
           </div>
         </header>
 
-        <section className="bg-green-400 w-full min-h-screen">
-          <Sidebar showSidebar={showSidebar}
+        <section className=" w-full min-h-screen flex">
+          <Sidebar
+            showSidebar={pageShowed === "Home"}
             onInnerButtonClick={() => {
               setVisibility(!visible);
             }}
             visible={visible}
           ></Sidebar>
-          <article>
-            <div className=" h-screen">
-              Muehehehehe
-            </div>
-            <div className=" h-screen">
-              Muehehehehe
-            </div>
-            <ul>
-              <article>
-                <picture>
-                  <img className="w-full max-h-48" />
-                </picture>
-                <footer>
-                  <div>
-                    <img />
-                  </div>
-                  <div>
-                    <h1></h1>
-                    <p></p>
-                    <small></small>
-                  </div>
-                </footer>
-              </article>
-            </ul>
-          </article>
-        </section>
 
-      
+          {pageShowed === "Home" ? (
+            <>
+              <HomePage pageController={_SetPageShowed} />
+            </>
+          ) : (
+            <>
+              <VideoPage pageController={_SetPageShowed} />
+            </>
+          )}
+        </section>
       </main>
     </>
   );
