@@ -2,8 +2,12 @@
     "Name": "Leonardo Medeiros Leiman",
     "Position": "Desenvolvedor Full Stack",
     "ToolsTitle": "Ferramentas que utilizo",
-    "ProjectsTitle":"Projetos & Experiencias",
-
+    "ProjectsTitle": "Projetos & Experiencias",
     "YoutubeProjectTitle": "Clone Youtube",
-    "YoutubeProjectDescription": "<p>Clone do youtube</p>"
+    "YoutubeProjectDescription": "Um projeto simples de reconstrução das páginas principais do YouTube usando Tailwind CSS e React, tentando ser o mais fiel possível ao material original. As cores e ícones foram extraídos usando o SnipCSS, uma extensão do navegador Chrome, e as ferramentas de desenvolvedor embutidas. \n \n O projeto foi surpreendentemente difícil no início, já que eu queria começar com a barra de cabeçalho e a barra lateral. A barra de cabeçalho envolvia truques com flexbox e justify-between. Muito do HTML do YouTube foi pensado para navegadores antigos, então grande parte do material original usava margens estranhas, enquanto outras partes utilizavam o flexbox antigo, o método de chamada desatualizado para criar caixas flexíveis no CSS. \n \n A parte mais difícil do projeto foi criar a barra lateral. Ela possui três estados principais que dependem de alguns fatores externos. O primeiro deles é a largura total da página, exibindo uma barra lateral mínima se o tamanho for muito pequeno ou a barra expandida padrão. Além disso, a barra lateral também possui um Modal/Drawer que pode ser chamado ao clicar no botão à esquerda do ícone da marca. \n \n Depois de ajustar os detalhes, não foi um problema implementar um modo claro ou escuro usando o novo comando dark: do Tailwind. Curiosamente, grande parte do modo escuro do YouTube é apenas uma cor base #f8f8f8 escura, com componentes cinzas sendo, na verdade, componentes brancos puros com uma opacidade no fundo, geralmente exibindo de 10% a 20% da opacidade total.",
+    
+    "Building": "Construindo",
+    "Finished": "Finalizado",
+    "Small Tweaks": "Pequenas Mudanças",
+    "Planning": "Planejando"
 }

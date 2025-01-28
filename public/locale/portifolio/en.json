@@ -3,10 +3,13 @@
     "Position": "Full Stack Developer",
     "ToolsTitle": "My favorite tools",
     "ProjectsTitle":"Projects & Experiences",
-
     "YoutubeProjectTitle": "Youtube Clone",
-    "YoutubeProjectDescription": "<p>Clone do youtube</p>",
-    "YoutubeProjectTitleb": "",
-    "YoutubeProjectTitlec": "",
-    "YoutubeProjectTitled": ""
+    "YoutubeProjectDescription": "A simple reconstruction project of the youtube main pages using Tailwind CSS and React trying to be as loyal as possible to the source material. The colours and icons were extracted using SnipCSS, a chrome web browser extension, and the built in developer tools. \n \n The project was suprisingly difficult in the beggining, since i wanted to start out with the header bar and the sidebar, the header was all about flex and justify-between tricks, a lot of youtube html is made thinking about old browsers, so a bunch of the source material just used weird margins while others used flexbox, the old deprecated call for a flex box in CSS. \n \n The hardest part of the project was making the Sidebar. it has Three main states that depend on some external factors. the first of witch was the page total width, showing a minimal sidebar if its too small or the default expanded bar. not forgeting that the sidebar also has a Modal/Drawer that you can call by clicking on the button to the left of the brand icon. \n \n After getting the details fixed in it wasnt an issue getting the page to show a light or dark mode using the new 'dark:' tailwind command, surprisingly a lot of Youtube dark mode is just a base #f8f8f8 dark colour with gray components actually being a pure white component with an opacity to the background, usualy showing 10-20% from 100%.",
+
+
+
+    "Building" : "Building",
+    "Finished" : "Finished",
+    "Small Tweaks" : "Small Tweaks",
+    "Planning" : "Planning"
 }
