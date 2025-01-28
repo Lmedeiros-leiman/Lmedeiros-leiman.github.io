@@ -22,6 +22,9 @@ body {
     background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1));
 }
 
+.markdown p {
+  padding: 0.5rem 1rem;
+}
 
 .loader {
   width: inherit;

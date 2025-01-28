@@ -6,11 +6,11 @@ import Preact from "@/assets/preact.svg";
 
 export const MadeWithFooter = () => {
   return (<>
-  <footer className="w-full px-8 py-4 bg-black text-white flex justify-between">
+  <footer className="w-full px-8 py-4 z-0 bg-black text-white flex justify-between">
       <span>
         <ul className="flex gap-6">
           <a
-            className="hover:border-b-2 border-yellow-300 transform hover:-translate-y-1 transition-all ease-in-out"
+            className="hover:border-b-2 border-yellow-300 transform hover:-translate-y-1  transition-all ease-in-out"
             href={"https://vitejs.dev/"}
             target={"_blank"}
             rel="noreferrer"
