@@ -152,7 +152,7 @@ const VideoItem: FC = () => {
 
 export const HomePage: FC<{
   _pageController?: Dispatch<StateUpdater<string>>;
-}> = ({ _pageController }) => {
+}> = () => {
   return (
     <article className="flex-grow w-min overflow-x-hidden">
       <TagsMenu />

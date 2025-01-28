@@ -121,7 +121,7 @@ const ProjectItem: React.FC<{ project: Project }> = ({ project }) => {
             </Carousel>
             <article className={"px-5 markdown"}>
               <ReactMarkDown>
-                {project.description}
+                {project.description as string}
               </ReactMarkDown>
               
               
