@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   srcExclude : [" ./Personal/**/*"],
-  base: "/portifolio/blog/",
+  base: "/blog/",
   outDir : "./../build/blog",
   title: "Leo blog",
   description: "A VitePress Site",
