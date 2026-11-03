@@ -32,8 +32,18 @@ before sending it. Little by little, I had a description of each app's
 That's when I realised something that changed the whole plan. The other
 computer never sees the code, only the messages. If my program sends exactly
 the same messages, the original apps can't tell it's not one of them. So I
-didn't need to write C++ at all, and I went with JavaScript, because it's what
-I needed to get this working.
+didn't need to write C++ at all.
+
+I did try. I spent some time learning C++, and I tried QML, the language Qt
+uses for its interfaces. But JavaScript was already familiar to me, and it's
+what the company already uses. On top of that, everything about these apps was
+confusing at the start, and in JavaScript I could map out the big ideas first
+without getting lost in the details.
+
+Now that I understand how it all works, I could map it out in Rust or C++ if I
+wanted. Especially with AI around, since that kind of rewrite is easy but
+repetitive work that needs a lot of brute force, which is exactly what AI is
+good at.
 
 ## Learning the language before talking
 
