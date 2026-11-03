@@ -1,0 +1,63 @@
+---
+import type { PostEntry } from '../utils/posts';
+import { formatNumber } from '../utils/posts';
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+	entries: PostEntry[];
+}
+
+const { entries } = Astro.props;
+---
+
+<ol class="post-list" reversed>
+	{
+		entries.map(({ post, number, minutes }) => (
+			<li>
+				<p class="meta">
+					<span>{formatNumber(number)}</span>
+					<FormattedDate date={post.data.pubDate} />
+					<span>{minutes} min read</span>
+				</p>
+				<h3>
+					<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+				</h3>
+				<p class="description">{post.data.description}</p>
+			</li>
+		))
+	}
+</ol>
+
+<style>
+	.post-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	li {
+		padding: 1.5rem 0;
+		border-top: 1px solid var(--rule);
+	}
+	li:last-child {
+		border-bottom: 1px solid var(--rule);
+	}
+	h3 {
+		margin: 0.375rem 0 0.5rem;
+		font-size: 1.5rem;
+		font-weight: 600;
+		letter-spacing: -0.01em;
+		line-height: 1.25;
+	}
+	h3 a {
+		color: var(--text);
+		text-decoration: none;
+	}
+	h3 a:hover {
+		color: var(--accent);
+	}
+	.description {
+		margin: 0;
+		color: var(--muted);
+		font-size: 1.0625rem;
+	}
+</style>
