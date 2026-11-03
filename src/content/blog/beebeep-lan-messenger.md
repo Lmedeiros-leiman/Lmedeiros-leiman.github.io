@@ -4,7 +4,8 @@ description: 'My company runs two LAN messengers that cannot talk to each other.
 pubDate: 'Nov 03 2026'
 ---
 
-At work we have two LAN messengers: **BeeBEEP** and **LAN Messenger**. Both are
+At work we have two LAN messengers: **[BeeBEEP](https://www.beebeep.net/)**
+and **[LAN Messenger](https://github.com/lanmessenger/lanmessenger)**. Both are
 serverless, peer-to-peer chat apps that find each other on the local network.
 Some people use one, some people use the other, and the two cannot talk to each
 other at all.
@@ -34,11 +35,27 @@ two apps?" to "what would it take to build one app that speaks both?"
 I didn't really know networking before this. I knew what an IP address was, and
 that was about it. Building a real peer for two protocols changed that fast.
 
-I started by reading the original source of both apps (BeeBEEP in C++/Qt, LAN
-Messenger in C++) and writing down what I found before writing any networking
-code. The first rule of the project, recorded as a decision on day one, was
-**codec before network**: parse and serialize the messages correctly in tests,
-and only then open a socket.
+I started by reading the original source of both apps and writing down what I
+found before writing any networking code. Both are C++/Qt projects:
+[BeeBEEP's source is on SourceForge](https://sourceforge.net/projects/beebeep/)
+and [LAN Messenger's is on GitHub](https://github.com/lanmessenger/lanmessenger).
+
+The first rule of the project, recorded as a decision on day one, was
+**codec before network**.
+
+> **What's a codec?** Short for *coder/decoder*. Programs on a network don't
+> send objects to each other, they send raw bytes, and both sides must agree
+> exactly how those bytes are laid out. A codec is the code that turns a
+> message like `{ type: chat, from: "Leonardo", text: "hi" }` into the exact
+> bytes the other app expects (encoding), and turns incoming bytes back into a
+> structured message (decoding). It doesn't open connections or find peers;
+> it only knows the format. It's the same idea as video and audio codecs like
+> H.264 or MP3: rules for turning data into bytes and back.
+
+So the first step was to get the byte format right in tests, with real
+captured messages, and only then open a socket. Network bugs are hard to
+debug, but format bugs are easy to test once the network is out of the
+picture.
 
 That turned out to be a very good call, because the two protocols are nothing
 alike.
@@ -133,6 +150,44 @@ which network is unavailable instead of failing completely.
 The rest is the polish I always wanted from the originals: light, dark and
 system themes, an interface in Portuguese, search across all contacts, unread
 highlights, and a title bar built into the app.
+
+## The final product
+
+The result is **BeeBep LAN Messenger**, a desktop app for Windows and Linux
+that:
+
+- appears as a normal peer on **both** BeeBEEP and LAN Messenger networks at the
+  same time, with no server and no setup;
+- talks to the original BeeBEEP and LAN Messenger clients in both directions,
+  tested against real machines on the office network;
+- shows every contact from both networks in one list, with presence, unread
+  counters and search;
+- supports direct messages, delivery and read receipts (where the protocol
+  has them), and an offline queue on BeeBEEP;
+- keeps working on one network if the other fails to start.
+
+The code is a TypeScript monorepo, one package per layer (codec, engine,
+adapter, unified client, desktop app), with a test suite built from real wire
+captures:
+**[github.com/Lmedeiros-leiman/LanMessaging-BeeBeepLanMessenger](https://github.com/Lmedeiros-leiman/LanMessaging-BeeBeepLanMessenger)**
+
+### Tools I used
+
+- **[TypeScript](https://www.typescriptlang.org/)** on
+  **[Node.js 24](https://nodejs.org/)** for everything: codecs, engines and the
+  app. It uses Node's built-in `node:dgram` (UDP), `node:net` (TCP),
+  `node:crypto` and the `node:test` test runner.
+- **[Electron](https://www.electronjs.org/)** for the desktop app, with plain
+  HTML, CSS and TypeScript for the interface (no UI framework).
+- **[Effect](https://effect.website/)** for typed errors at the domain
+  boundaries, so every failure has a name and a shape instead of a random
+  `throw`.
+- **[esbuild](https://esbuild.github.io/)** to bundle the desktop app.
+- **[GitHub Actions](https://github.com/features/actions)** to run the tests
+  and an Electron smoke test on every pull request.
+- The original **[BeeBEEP](https://sourceforge.net/projects/beebeep/)** and
+  **[LAN Messenger](https://github.com/lanmessenger/lanmessenger)** source code
+  as the reference spec, plus packet captures from the real apps.
 
 ## What's next
 
