@@ -32,22 +32,8 @@ before sending it. Little by little, I had a description of each app's
 That's when I realised something that changed the whole plan. The other
 computer never sees the code, only the messages. If my program sends exactly
 the same messages, the original apps can't tell it's not one of them. So I
-didn't need to write C++ at all. I could write it in whatever I wanted.
-
-## Why JavaScript
-
-I picked JavaScript (TypeScript, to be exact, which is JavaScript with a
-safety net that catches my typos).
-
-The reason is simple: it's the tool I'm fast with, and it hides a lot of hard
-stuff. Sending messages over the network, encrypting them, building a window
-with buttons and a contact list: JavaScript already comes with all of that or
-lets me use web pages for it. In C++, each of those would have been a project
-of its own before I even got to the real problem.
-
-That was the trade. I gave up the control C++ gives you, and in return I could
-spend my time on the only question that mattered: what are these two apps
-saying to each other?
+didn't need to write C++ at all, and I went with JavaScript, because it's what
+I needed to get this working.
 
 ## Learning the language before talking
 
@@ -114,8 +100,8 @@ I came out of this knowing far more about how computers talk to each other
 than I did in July, and I learned all of it by needing it.
 
 But what stuck with me most is how close I came to never starting. "It's just
-how it is" felt true for a long time, and it wasn't. The apps were open, the
-messages could be recorded, and the language I already knew was good enough.
+how it is" felt true for a long time, and it wasn't. The apps were open and
+their messages could be recorded. That was enough to start.
 
 So if something bugs you every day, look inside it. You might be able to fix
 it too.
