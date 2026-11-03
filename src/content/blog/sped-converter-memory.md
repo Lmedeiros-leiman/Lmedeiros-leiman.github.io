@@ -1,123 +1,165 @@
 ---
-title: 'From a gigabyte to 80 megabytes'
-description: 'The converter we use at work loaded entire spreadsheets into memory. This is how I made it read and write them one row at a time instead.'
+title: 'De 1 GB para 80 MB: otimizando o conversor de SPED'
+description: 'O conversor de SPED da empresa carregava a planilha inteira na memória. Troquei isso por leitura e escrita em fluxo, linha a linha, sem NPOI.'
 pubDate: 'Nov 03 2026'
 ---
 
-At work we have a small web app that converts SPED files. SPED is the system
-Brazilian companies use to send their tax and accounting records to the
-government, and those records are plain text files where every line is one
-record, with fields separated by a `|`.
+## A ferramenta
 
-Nobody enjoys editing those by hand, so the app turns a SPED file into an
-Excel spreadsheet, with one sheet for each type of record. People fix what
-they need in Excel, and the app turns the spreadsheet back into a text file
-the government accepts.
+No trabalho a gente tem uma API pequena que converte arquivos SPED.
 
-It worked. It also used a lot of memory. Converting one of our bigger files
-pushed the app past a gigabyte of RAM. I wanted to bring that down.
+O SPED é o sistema que as empresas no Brasil usam para mandar escrituração
+fiscal e contábil para a Receita. Os arquivos são texto puro: cada linha é um
+registro, os campos são separados por `|`, e o primeiro campo diz o tipo do
+registro (`0000`, `C100`, `J800` e assim por diante). Os layouts suportados são
+EFD ICMS/IPI, EFD Contribuições e ECD.
 
-## Where the memory went
+Editar esse texto na mão é ruim, então a ferramenta faz a conversão nos dois
+sentidos:
 
-The app used a library called NPOI to read and write the spreadsheets. NPOI
-is good at what it does, but the way it works is that it loads the entire
-workbook into memory first: every sheet, every row, every cell, each one as
-its own object. Only then can you start asking it questions.
+- TXT para Excel: cada tipo de registro vira uma aba, com os nomes dos campos no
+  cabeçalho. Uma aba escondida, `Schema`, guarda a ordem original das linhas:
+  cada célula dela é uma fórmula apontando para a linha correspondente em outra
+  aba, tipo `='0000'!B2`. O conteúdo RTF do registro `J800` fica numa aba
+  separada, `rich_text`.
+- Excel para TXT: a pessoa edita a planilha no Excel, manda de volta, e a
+  ferramenta remonta o TXT na ordem da aba `Schema`.
 
-For a converter, that's a lot of work for nothing. The text file is read top
-to bottom, once. The spreadsheet could be read top to bottom, once, too.
-There was never any reason to hold all of it at the same time.
+É uma API em ASP.NET Core (.NET 10). Ela tem um endpoint para cada sentido e um
+que detecta o tipo pela extensão do arquivo.
 
-## Looking inside the file
+## O problema
 
-A `.xlsx` file looks like one file, but it's actually a zip folder full of
-XML files: one for each sheet, one for the list of sheets, one for the
-styles, and a few more. You can rename one to `.zip` and open it to see for
-yourself.
+Funcionava, mas gastava muita memória. As duas conversões usavam o NPOI para ler
+e gravar as planilhas, e o NPOI monta o workbook inteiro na memória antes de
+qualquer coisa: cada aba, cada linha, cada célula vira um objeto.
 
-That meant I could skip the library entirely. .NET can already open zip
-files and read XML one piece at a time, without loading the whole thing.
+Para ler, ainda tinha um agravante. Para descobrir o valor de cada célula da
+`Schema`, a conversão calculava todas as fórmulas, e calcular fórmula exige o
+workbook inteiro carregado.
 
-There was one problem. Our spreadsheets have a hidden sheet that holds the
-order of the lines in the text file. Each of its cells is a formula pointing
-at a cell on another sheet, something like `='0000'!B2`. To get the value, NPOI
-calculated every formula, and calculating formulas is exactly the kind of
-thing that needs the whole workbook in memory.
+No maior arquivo de teste, uma ECD com `J800`, o pico foi de 1.087 MB para gerar
+o TXT e de 687 MB para gerar a planilha. Eu queria reduzir isso sem mudar uma
+vírgula do resultado.
 
-## The value was already there
+## A ideia
 
-Then I found out something about Excel I didn't know. When Excel saves a
-file, it writes the result of every formula right next to the formula
-itself. It does this so the file opens fast next time.
+Um `.xlsx` é um zip de arquivos XML: um por aba, um com a lista de abas, um de
+estilos, um de textos compartilhados. O .NET já sabe abrir zip (`ZipArchive`) e
+ler XML em fluxo (`XmlReader`), sem carregar tudo. Então dava para tirar o NPOI
+do caminho.
 
-So the answers were already in the file. I didn't need to calculate
-anything. I could read that one hidden sheet from top to bottom, take the
-saved results, and write each line of the text file as soon as I had it.
-None of the other sheets even needs to be opened.
+O ponto que destravou foi descobrir que o Excel, ao salvar, grava o resultado de
+cada fórmula ao lado dela (o elemento `<v>` da célula). Ou seja, o valor de cada
+célula da `Schema` já está no arquivo. Não preciso calcular nada, nem abrir as
+outras abas: basta ler a `Schema` de cima para baixo e escrever cada linha do
+TXT assim que ela é lida.
 
-The catch is that only Excel writes those results. A spreadsheet that came
-straight out of our app and was never opened in Excel has formulas with no
-saved values. In that case the app now stops and tells the person to open
-the file in Excel, save it, and send it again. Since the whole point of the
-spreadsheet is to be edited in Excel, that's a small thing to ask.
+O porém é que só o Excel grava esses valores. Uma planilha que saiu da
+ferramenta e nunca foi aberta no Excel tem as fórmulas sem resultado. Decidi
+tratar isso como erro: a conversão para e pede para abrir a planilha no Excel,
+salvar e mandar de novo. O mesmo vale quando o arquivo está marcado para
+recalcular ao abrir (`fullCalcOnLoad`) ou em cálculo manual sem recalcular ao
+salvar, porque nesses casos os valores salvos podem estar desatualizados.
 
-## The other direction
+## O que foi feito
 
-Writing the spreadsheet had the opposite problem. The text file mixes
-record types line by line, so the rows of every sheet show up interleaved,
-but inside the zip each sheet has to be written as one piece.
+Excel para TXT (`XlsxSheetReader`):
 
-My answer was to give every sheet its own temporary file on disk. As each
-line of the text is read, its row goes to the end of its sheet's file. When
-the text is done, the app builds the zip by copying those files in, one
-after the other, and the temporary files delete themselves when they're
-closed. The finished spreadsheet goes to a temporary file too, instead of
-sitting in memory until the download is over.
+- Lê o `.xlsx` com `ZipArchive` + `XmlReader` e percorre só a aba `Schema`,
+  usando os valores que o Excel deixou em cache.
+- A tabela de textos compartilhados só é carregada se alguma célula lida
+  precisar dela (na prática, a aba `rich_text` do `J800`).
+- Usa buffers reaproveitados para ler o texto das células. A primeira versão
+  alocava 8 KB por célula e somava uns 2,5 GB de alocação ao longo da
+  conversão.
+- O TXT é escrito direto num arquivo temporário, não numa string na memória.
 
-## Proving nothing changed
+TXT para Excel (`XlsxWorkbookWriter`):
 
-This app produces files that go to the government, so "it looks right" was
-not good enough. The new version had to produce exactly what the old one
-did.
+- O TXT mistura os tipos de registro linha a linha, mas dentro do zip cada aba
+  precisa ser gravada inteira de uma vez. Então cada aba ganha o próprio arquivo
+  temporário em disco, e cada linha lida vai para o fim do arquivo da sua aba.
+- No final, o zip é montado copiando esses arquivos um depois do outro. Os
+  temporários se apagam sozinhos ao fechar (`FileOptions.DeleteOnClose`).
+- Comecei com a compressão mais rápida, mas o arquivo ficava cerca de 1,8 vez
+  maior. Voltei para a compressão padrão.
+- A planilha final também vai para um temporário em vez de um `byte[]`.
 
-For the text files, I converted the same spreadsheets with the old and the
-new code and compared the results byte by byte. They were identical. For
-the spreadsheets, I compared the old and new files cell by cell, about 3.1
-million cells across our test files: sheet names and order, which sheets are
-hidden, and every cell's type, value, formula and format. They matched too.
-I also checked the new files with Microsoft's own validator for the format,
-and it found no errors.
+Na API:
 
-I also had AI tools review the code a few times, looking for the cases I
-hadn't thought of: a cell typed as a number where text was expected, a file
-that isn't a spreadsheet at all, someone closing the browser in the middle
-of a conversion. Each of those now gets a clear error message instead of a
-crash, and a cancelled conversion stops right away and cleans up after
-itself.
+- As duas conversões gravam a saída num temporário, e o download é feito a
+  partir dele.
+- Se o cliente desconecta no meio, a conversão para (`RequestAborted`) e não
+  deixa arquivo para trás.
 
-## The numbers
+O NPOI saiu do projeto principal e ficou só no projeto de testes, onde simula o
+"abrir e salvar no Excel".
 
-Here is the peak memory used by the biggest test file, before and after:
+## Benchmark
 
-| Conversion | Before | After |
+Pico de memória (working set) por arquivo de teste:
+
+| Arquivo | Excel → TXT | TXT → Excel |
 | --- | --- | --- |
-| Spreadsheet to text | 1,087 MB | 81 MB |
-| Text to spreadsheet | 687 MB | 78 MB |
+| ECD (diário, com `J800`) | 1.087 → 81 MB | 687 → 78 MB |
+| Inventário | 776 → 66 MB | 528 → 68 MB |
+| EFD Contribuições | 802 → 62 MB | 401 → 66 MB |
 
-The spreadsheet to text conversion also went from about 23 seconds to 1.5,
-because it no longer builds and calculates a whole workbook just to read one
-sheet.
+No maior arquivo, o Excel → TXT também caiu de 23,4 s para 1,5 s, porque não
+monta nem calcula mais o workbook inteiro.
 
-And since NPOI was the only thing pulling in packages with known security
-problems, removing it fixed those too.
+Rodando a API de verdade (`dotnet run`) e mandando as conversões por HTTP, o pico
+do processo do servidor ficou em torno de 118 MB.
 
-## Looking back
+## Como provei que nada mudou
 
-The fix wasn't clever code. It was finding out what was already inside the
-file. Excel had been saving the answers the whole time, and the app was
-throwing them away and working them out again.
+O resultado vai para a Receita, então "parece certo" não bastava.
 
-Most of the work went into proving the new version gives the same results as
-the old one, and that was the right place to spend it. Shrinking the memory
-was the easy part. Making sure nobody would notice the change was the hard
-part.
+- TXT: o arquivo gerado pela versão nova é idêntico byte a byte ao da versão com
+  NPOI em todos os arquivos de teste.
+- Planilha: comparei a versão nova com a antiga célula a célula, cerca de 3,1
+  milhões de células. Comparei nomes, ordem e visibilidade das abas, aba ativa,
+  e tipo, valor, fórmula e formato de cada célula. Bateu tudo.
+- Os `.xlsx` gerados passam sem erros no validador do Open XML SDK, da Microsoft.
+- 16 testes automatizados, cobrindo os casos novos abaixo.
+- 46 verificações por HTTP com o servidor rodando, nos dois sentidos e nos casos
+  de erro. Isso inclui cancelar no meio da conversão: nenhum temporário ficou
+  para trás.
+- Três rodadas de revisão de código com IA (Claude e Codex), procurando casos de
+  borda. Os achados foram corrigidos.
+
+## Casos de borda que apareceram
+
+- O NPOI grava fórmula sem resultado como `<v/>` vazio, não sem `<v>`. A
+  detecção de "nunca aberta no Excel" precisou cobrir os dois casos.
+- Caracteres de controle e caracteres especiais de XML no texto precisam ser
+  escapados no formato do Excel (`_x000D_` e afins), senão o arquivo fica
+  inválido.
+- O texto vazio é gravado como uma entrada da tabela de textos compartilhados,
+  igual ao NPOI fazia, porque o Excel preserva isso como `""` ao salvar.
+- Uma célula da aba `rich_text` digitada como número sumiria do RTF sem aviso.
+  Agora dá erro dizendo qual célula.
+- Um tipo de registro que não pode ser nome de aba no Excel, ou que colide com
+  `Schema`/`rich_text`, agora dá erro em vez de exceção.
+- Os limites do Excel (1.048.576 linhas, 16.384 colunas, 32.767 caracteres por
+  célula) agora dão mensagem clara.
+- Arquivo que não é zip, Strict OOXML ou planilha corrompida também dão mensagem
+  clara, em vez de erro 500.
+- Uma data apagada no Excel deixou de virar `00000000`.
+
+## O que mudou para quem usa
+
+- Só `.xlsx` é aceito. `.xls` e `.xlsm` são recusados.
+- Planilha que não foi salva no Excel gera o erro "Abra e salve a planilha no
+  Excel antes de converter".
+- A API não depende mais de pacotes com vulnerabilidade conhecida, que vinham
+  junto com o NPOI.
+
+## O que ficou pendente
+
+- Abrir no Excel de verdade uma planilha gerada pela versão nova, salvar e
+  converter de volta. Não havia Excel na máquina dos testes.
+- A troca de `|0|` por `||` no TXT não pega ocorrências seguidas: `|0|0|` vira
+  `||0|`. Mantive o comportamento original, porque zerar tudo apagaria campos
+  obrigatórios. Isso ainda precisa ser decidido.
