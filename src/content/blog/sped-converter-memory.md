@@ -1,6 +1,6 @@
 ---
-title: 'De 1 GB para 80 MB: otimizando o conversor de SPED'
-description: 'O conversor de SPED da empresa carregava a planilha inteira na memória. Troquei isso por leitura e escrita em fluxo, linha a linha, sem NPOI.'
+title: 'De 1 GB para 80 MB e de 23 s para 2 s: otimizando o conversor de SPED'
+description: 'O conversor de SPED da empresa carregava a planilha inteira na memória. Troquei isso por leitura e escrita em fluxo, linha a linha, sem NPOI, e as conversões ficaram mais leves e mais rápidas.'
 pubDate: 'Nov 03 2026'
 ---
 
@@ -39,8 +39,9 @@ Para ler, ainda tinha um agravante. Para descobrir o valor de cada célula da
 workbook inteiro carregado.
 
 No maior arquivo de teste, uma ECD com `J800`, o pico foi de 1.087 MB para gerar
-o TXT e de 687 MB para gerar a planilha. Eu queria reduzir isso sem mudar uma
-vírgula do resultado.
+o TXT e de 687 MB para gerar a planilha. E demorava: de 6 a 23 segundos por
+conversão nos arquivos maiores. Eu queria reduzir isso sem mudar uma vírgula do
+resultado.
 
 ## A ideia
 
@@ -98,19 +99,50 @@ O NPOI saiu do projeto principal e ficou só no projeto de testes, onde simula o
 
 ## Benchmark
 
-Pico de memória (working set) por arquivo de teste:
+O ganho não foi só de memória. As conversões também ficaram bem mais rápidas.
+
+Os números abaixo são de uma execução por arquivo, num processo isolado e na
+mesma máquina, antes e depois. Servem como ordem de grandeza, não como
+benchmark rigoroso.
+
+Pico de memória (working set):
 
 | Arquivo | Excel → TXT | TXT → Excel |
 | --- | --- | --- |
 | ECD (diário, com `J800`) | 1.087 → 81 MB | 687 → 78 MB |
 | Inventário | 776 → 66 MB | 528 → 68 MB |
 | EFD Contribuições | 802 → 62 MB | 401 → 66 MB |
+| Arquivo pequeno | 225 → 56 MB | 137 → 58 MB |
 
-No maior arquivo, o Excel → TXT também caiu de 23,4 s para 1,5 s, porque não
-monta nem calcula mais o workbook inteiro.
+Tempo de execução:
+
+| Arquivo | Excel → TXT | TXT → Excel |
+| --- | --- | --- |
+| ECD (diário, com `J800`) | 23,4 → 1,8 s | 9,1 → 1,8 s |
+| Inventário | 19,6 → 1,3 s | 6,6 → 1,3 s |
+| EFD Contribuições | 18,4 → 2,4 s | 6,3 → 1,0 s |
+| Arquivo pequeno | 3,0 → 0,26 s | 2,2 → 0,93 s |
+
+Memória alocada ao longo da conversão (o total de tudo que foi criado, mesmo o
+que já foi liberado):
+
+| Arquivo | Excel → TXT | TXT → Excel |
+| --- | --- | --- |
+| ECD (diário, com `J800`) | 3.967 → 144 MB | 2.482 → 211 MB |
+| Inventário | 2.863 → 83 MB | 1.838 → 198 MB |
+| EFD Contribuições | 2.195 → 70 MB | 1.358 → 113 MB |
+
+Resumindo: o Excel → TXT ficou de 8 a 15 vezes mais rápido e o TXT → Excel de 3
+a 5 vezes. As duas causas são as mesmas da memória. O NPOI criava milhões de
+objetos, um por célula, e o Excel → TXT ainda calculava todas as fórmulas do
+workbook para ler uma aba só.
 
 Rodando a API de verdade (`dotnet run`) e mandando as conversões por HTTP, o pico
 do processo do servidor ficou em torno de 118 MB.
+
+Um efeito colateral: o `.xlsx` gerado ficou de 1% a 10% maior (na EFD
+Contribuições, de 3.073 para 3.382 KB), por causa da forma como os textos são
+gravados agora, que é o que permite escrever em fluxo.
 
 ## Como provei que nada mudou
 
