@@ -17,6 +17,23 @@ questioned it. That's just how it was.
 It bothered me every single day. Eventually I got tired of being bothered and
 decided to see if I could do something about it.
 
+## A weekend project
+
+This was never a work task. I had the idea in July and built it slowly, on the
+side, mostly on weekends.
+
+And at first, my interest was low. Most of the people I needed to talk to sat
+near me, so whenever the two apps got in the way, I just got up and talked to
+them in person. That short-circuited the whole problem, and the project sat
+there moving at weekend speed.
+
+That changed around August. Chairs started moving. People changed desks, and
+some of them weren't even in the same building as me anymore. The office
+network was shared between the buildings, so the chat apps still reached them,
+but walking over was no longer an option. Suddenly the messenger was the only
+way to reach some people, and having it split in two hurt a lot more. That's
+when the project really picked up.
+
 ## Looking inside
 
 Both apps are open source, so the first thing I did was download their code
