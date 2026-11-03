@@ -19,20 +19,19 @@ decided to see if I could do something about it.
 
 ## A weekend project
 
-This was never a work task. I had the idea in July and built it slowly, on the
-side, mostly on weekends.
+This was never a work task. I built it slowly, on the side, mostly on
+weekends.
 
 And at first, my interest was low. Most of the people I needed to talk to sat
 near me, so whenever the two apps got in the way, I just got up and talked to
 them in person. That short-circuited the whole problem, and the project sat
 there moving at weekend speed.
 
-That changed around August. Chairs started moving. People changed desks, and
-some of them weren't even in the same building as me anymore. The office
-network was shared between the buildings, so the chat apps still reached them,
-but walking over was no longer an option. Suddenly the messenger was the only
-way to reach some people, and having it split in two hurt a lot more. That's
-when the project really picked up.
+What changed was the project itself. Every piece I got working made the two
+apps on my screen more annoying, because now I could see how close I was to
+getting rid of one of them. The closer it got to something I could actually
+use every day, the less patience I had for the old way. That annoyance is what
+kept me coming back to it.
 
 ## Looking inside
 
@@ -64,7 +63,7 @@ good at.
 
 ## Learning the language before talking
 
-I started in July with LAN Messenger, and I made myself one rule: no talking
+I started with LAN Messenger, and I made myself one rule: no talking
 to the network until I could write and read its messages perfectly on my own
 computer.
 
@@ -74,7 +73,7 @@ it does the reverse for incoming messages. (Programmers call this a *codec*,
 short for coder/decoder.) I tested it against real messages until it got every
 one of them right.
 
-Only then did I connect it to the real network. By September I had a small
+Only then did I connect it to the real network. Eventually I had a small
 desktop window where LAN Messenger contacts showed up, and I sent a message
 to another computer on the network running the original app. It arrived.
 
@@ -114,7 +113,7 @@ the original problem finally went away:
   Messenger, you can reach me and I can reach you.
 - If one of the networks has a problem, the other keeps working.
 
-At the end of September I chatted with both original apps on another computer
+Then came the day I chatted with both original apps on another computer
 in both directions, from the same window. The two icons in the corner became
 one.
 
@@ -124,7 +123,7 @@ The code is on GitHub:
 ## Looking back
 
 I came out of this knowing far more about how computers talk to each other
-than I did in July, and I learned all of it by needing it.
+than I did when I started, and I learned all of it by needing it.
 
 But what stuck with me most is how close I came to never starting. "It's just
 how it is" felt true for a long time, and it wasn't. The apps were open and
