@@ -140,9 +140,38 @@ workbook para ler uma aba só.
 Rodando a API de verdade (`dotnet run`) e mandando as conversões por HTTP, o pico
 do processo do servidor ficou em torno de 118 MB.
 
-Um efeito colateral: o `.xlsx` gerado ficou de 1% a 10% maior (na EFD
-Contribuições, de 3.073 para 3.382 KB), por causa da forma como os textos são
-gravados agora, que é o que permite escrever em fluxo.
+## O preço: arquivo um pouco maior
+
+O `.xlsx` gerado ficou de 1% a 10% maior. Na EFD Contribuições, foi de 3.073
+para 3.382 KB. Isso foi uma escolha deliberada, e é ela que mantém o consumo
+de memória baixo no TXT → Excel.
+
+O formato do Excel tem dois jeitos de guardar texto numa célula:
+
+- Tabela de textos compartilhados (o que o NPOI fazia): todo texto vai para um
+  arquivo central, o `sharedStrings.xml`, e a célula guarda só a posição dele
+  nessa tabela, tipo `<c r="A2" t="s"><v>14</v></c>`. Na EFD Contribuições
+  eram 370.452 textos usados e só 22.050 diferentes. Um valor que se repete
+  muito, como `0000`, uma data ou um CFOP, é gravado uma vez só.
+- Texto na própria célula (o que a versão nova faz): o valor vai direto dentro
+  da célula, tipo `<c r="A2" t="inlineStr"><is><t>0000</t></is></c>`. Um valor
+  que aparece mil vezes é gravado mil vezes.
+
+A tabela compartilhada gera um arquivo menor, mas para montá-la é preciso
+guardar na memória todos os textos diferentes do arquivo até o fim da
+conversão, para saber se cada texto novo já apareceu antes. Quanto maior e mais
+variado o SPED, maior fica essa tabela. Ou seja, a memória volta a crescer junto
+com o arquivo, que é exatamente o que eu estava tentando eliminar.
+
+Com o texto na célula, a escrita não guarda estado nenhum: cada linha é escrita
+no disco e esquecida. É isso que mantém o pico perto de 80 MB qualquer que seja
+o tamanho do arquivo. E como o `.xlsx` é um zip, a compressão absorve boa parte
+da repetição, então a diferença final fica entre 1% e 10%. Trocar alguns
+kilobytes de disco por centenas de megabytes de RAM vale a pena.
+
+A tabela compartilhada continua existindo, com uma entrada só: o texto vazio.
+Ele é gravado assim porque era como o NPOI fazia, e o Excel preserva essas
+células como `""` ao salvar.
 
 ## Como provei que nada mudou
 
