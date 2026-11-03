@@ -1,14 +1,15 @@
 ---
 title: 'Two messengers, one app: how I stopped living with the pain'
-description: 'My company runs two LAN messengers that cannot talk to each other. Instead of putting up with it, I reverse-engineered both protocols and built one app that speaks both.'
+description: 'My company runs two LAN messengers that cannot talk to each other. Instead of putting up with it, I rebuilt both in JavaScript and made one app that speaks both.'
 pubDate: 'Nov 03 2026'
 ---
 
-At work we have two LAN messengers: **[BeeBEEP](https://www.beebeep.net/)**
-and **[LAN Messenger](https://github.com/lanmessenger/lanmessenger)**. Both are
-serverless, peer-to-peer chat apps that find each other on the local network.
-Some people use one, some people use the other, and the two cannot talk to each
-other at all.
+At work we have two LAN messengers:
+**[BeeBEEP](https://www.beebeep.net/)** and
+**[LAN Messenger](https://github.com/lanmessenger/lanmessenger)**. Both are
+little chat apps that find each other on the office network without any
+server. Some people use one, some people use the other, and the two cannot
+talk to each other at all.
 
 So you end up with two apps in the tray. Two contact lists. Two places a message
 might be waiting for you. You have to remember who's on which. And everyone just
@@ -19,188 +20,144 @@ For a long time I accepted it too. This post is about the moment I stopped.
 ## Pain is information
 
 What I learned from this project is that a recurring annoyance tells you
-something. When you hit the same friction every day, that friction is a spec
-waiting to be written.
+something. When you hit the same friction every day, that friction is a to-do
+list someone hasn't written yet.
 
 I used to treat the tools I was given as fixed: they work the way they work and
-my job is to adapt. But both of these messengers are open source. The protocols
-aren't secret, they're just undocumented. Nothing was stopping me from
-understanding them except the assumption that this wasn't my problem to fix.
+my job is to adapt. But both of these messengers are open source. Nothing was
+stopping me from understanding them except the assumption that this wasn't my
+problem to fix.
 
 Once I saw it that way, the question changed. It went from "how do I live with
 two apps?" to "what would it take to build one app that speaks both?"
 
-## Learning networking the hard way
+## The wall
 
-I didn't really know networking before this. I knew what an IP address was, and
-that was about it. Building a real peer for two protocols changed that fast.
+The honest answer to that question was scary at first.
 
-I started by reading the original source of both apps and writing down what I
-found before writing any networking code. Both are C++/Qt projects:
-[BeeBEEP's source is on SourceForge](https://sourceforge.net/projects/beebeep/)
-and [LAN Messenger's is on GitHub](https://github.com/lanmessenger/lanmessenger).
+Both original apps are written in C++ with Qt. That's serious, low-level
+stuff: you manage memory by hand, you compile for every platform, and every
+small change comes with a lot of ceremony. Reading their source felt like
+reading another country's tax law. If the only way to fix this had been to
+write C++ like they did, I probably would have closed the tab and gone back to
+having two apps open.
 
-The first rule of the project, recorded as a decision on day one, was
-**codec before network**.
+Then it clicked: **I don't have to fight in their language.** A protocol is just
+an agreement about what bytes go over the wire. It doesn't care what language
+produced them. If my program sends the right bytes, the original apps can't
+tell the difference.
+
+So I used the tool I'm actually fast with: **JavaScript** (well, TypeScript,
+which is JavaScript with type labels on it so my editor catches my mistakes).
+
+## Languages are tools
+
+I think people talk about programming languages like they're teams to
+cheer for. They're not. They're tools, and the right one is the one that gets
+*you* from the problem to the solution.
+
+C++ gives you total control, and the original authors needed that control.
+JavaScript takes most of it away, and in exchange it hands you abstractions.
+For someone like me, that trade was the whole reason this project was possible:
+
+- **Networking is a few lines.** Node.js comes with built-in modules for
+  sending messages across the network. Listening for other computers on the
+  office network is a function call, not a weekend of setting up libraries.
+- **Encryption is built in.** Both protocols encrypt their messages. In
+  JavaScript the crypto toolbox ships with the runtime, so I could focus on
+  *what* the apps were doing instead of *how* to make my compiler happy.
+- **The UI is just a web page.** With [Electron](https://www.electronjs.org/),
+  the desktop app is HTML and CSS, the same things I'd use for a website. No
+  new UI toolkit to learn.
+- **Fast feedback.** Change a line, run it, see what happens. When you're
+  poking at a protocol nobody documented, being able to try ten ideas in ten
+  minutes matters more than anything else.
+
+Is JavaScript the "best" language? No. Is it the one that let a person who
+didn't really know networking pull this off? Absolutely. The abstraction
+hid the boring, dangerous parts and left me with only the interesting
+question: *what are these two apps saying to each other?*
+
+## Learning the network by listening to it
+
+I didn't know networking before this. I knew what an IP address was, and that
+was about it. I learned by doing it the slow way: reading the original source,
+writing down what I found, and listening to what the real apps sent on the
+network.
+
+The first rule I set for the project was **codec before network**.
 
 > **What's a codec?** Short for *coder/decoder*. Programs on a network don't
 > send objects to each other, they send raw bytes, and both sides must agree
 > exactly how those bytes are laid out. A codec is the code that turns a
-> message like `{ type: chat, from: "Leonardo", text: "hi" }` into the exact
-> bytes the other app expects (encoding), and turns incoming bytes back into a
-> structured message (decoding). It doesn't open connections or find peers;
-> it only knows the format. It's the same idea as video and audio codecs like
-> H.264 or MP3: rules for turning data into bytes and back.
+> message like `{ from: "Leonardo", text: "hi" }` into the exact bytes the
+> other app expects, and turns incoming bytes back into a message. It doesn't
+> connect to anything; it only knows the format. It's the same idea as video
+> and audio codecs like MP3: rules for turning data into bytes and back.
 
-So the first step was to get the byte format right in tests, with real
-captured messages, and only then open a socket. Network bugs are hard to
-debug, but format bugs are easy to test once the network is out of the
-picture.
+In other words: first learn to speak the language correctly, and only then
+start talking to people. Getting the format right on my own machine was easy
+to test. Getting it wrong over a real network is a nightmare to debug.
 
-That turned out to be a very good call, because the two protocols are nothing
-alike.
+And the two apps speak very different languages. One wraps its messages in
+XML. The other uses text fields separated by invisible Unicode characters. Both
+encrypt everything in their own way. Each one was a small puzzle, and every
+solved puzzle taught me another piece of how networks really work.
 
-**LAN Messenger** sends datagrams with a fixed 6-byte type prefix (`BRDCST`,
-`PUBKEY`, `HNDSHK`, `MESSAG`), followed by an XML payload. Peers announce
-themselves by broadcast, swap public keys, and then chat over TCP using RSA plus
-AES.
+## The day it didn't work
 
-**BeeBEEP** sends UTF-8 text envelopes whose fields are separated by the Unicode
-paragraph separator (`U+2029`), with the inner data split by the line separator
-(`U+2028`). Discovery runs over UDP on port 36475 with multicast; chat runs over
-TCP on 6475. Peers agree on a key with elliptic-curve Diffie-Hellman on the
-`sect163k1` curve, run the shared point through SHA-1, and encrypt with
-AES-256-ECB. Some messages are also wrapped in Qt's compression format.
+My first BeeBEEP version worked perfectly... with itself. Two copies of my app
+found each other, said hello and chatted. I felt done.
 
-Along the way I had to get comfortable with things that used to be just
-buzzwords to me: broadcast vs. multicast, UDP vs. TCP, framing a byte stream so
-you know where one message ends, endianness, and key exchange. I also learned
-how to read a packet capture and trust what's on the wire over what I *think*
-should be there.
+Then I pointed it at a real BeeBEEP on the office network and got nothing.
+The original app *could* see me, tried to say hello, and the conversation
+died right away.
 
-## The bug that taught me the most
+Two copies of my own code agreed with each other perfectly, because they shared
+the same wrong assumptions.
 
-My BeeBEEP engine worked perfectly in loopback. Two copies of my TypeScript
-client found each other, said hello, swapped keys and chatted. I felt done.
+So I recorded what the real app was actually sending and compared it to the
+original source, line by line. It turned out that the very first message
+follows different rules from all the others: a different size header, and
+(thanks to a bug in the original code, sitting right next to a comment that
+literally says `"What the hell..."`) a blank encryption key. Once I matched
+those quirks exactly, my app showed up in the original BeeBEEP's contact list,
+and its users showed up in mine.
 
-Then I pointed it at a real BeeBEEP 5.8.6 on the network and got... nothing.
-`No BeeBEEP users found.` The original app *was* seeing my announcement and
-dialing back, but the connection died right away.
-
-Loopback had given me a false sense of being ready. Two copies of my own code
-agreed with each other perfectly, because they shared the same wrong
-assumptions.
-
-Capturing the real handshake and digging back into the original source turned
-up two things:
-
-1. **Framing.** Before the protocol version is negotiated, the original app
-   uses a 16-bit length prefix. It only switches to 32-bit after the hello. I
-   was using 32-bit from the start. The original read my length as zero and
-   waited forever. I read its length as roughly 26 MB and dropped the
-   connection.
-2. **The hello key.** Thanks to an inverted comparison in the original code
-   (with a `"What the hell..."` comment right next to it), the very first
-   message is encrypted with an AES key made of 32 zero bytes, not the derived
-   key. When I decrypted the captured hello with a zeroed key, a perfectly
-   valid `BEE-CIAO 95` came out.
-
-After those two fixes, my app showed up in the original BeeBEEP's contact list,
-and its users showed up in mine. That was a great moment. It was also the
-moment I understood that **compatibility is proven against the real thing, not
-against yourself**. Every real capture since then has gone into the test suite
-as a fixture.
-
-## One UI for both networks
-
-With both engines working, I built the part people actually see: an
-**Electron desktop app** that speaks both protocols at the same time.
-
-The architecture is in layers, and each layer only knows about the one below
-it:
-
-```
-codec → protocol engine → adapter → unified client → UI
-```
-
-The UI never asks "is this BeeBEEP or LAN Messenger?" Each network plugs in
-through an adapter that turns its contacts, presence and messages into one
-shared domain model. Each network also declares what it supports (receipts,
-groups, file transfer...), so the interface can hide what a protocol doesn't
-have without `if (protocol === ...)` scattered everywhere. Adding a third
-protocol later means writing a new adapter and nothing else.
-
-It's a **client, not a bridge**. A BeeBEEP contact is always talked to over
-BeeBEEP, and a LAN Messenger contact over LAN Messenger. The app doesn't
-translate between them. It simply shows up on both networks at once, so nobody
-has to switch anything for it to work. The colleague still running the original
-BeeBEEP or LAN Messenger can reach me, and I can reach them.
-
-In the interface, both networks live in one contact list, as collapsible
-sections with their own unread counters. **BeeBEEP comes first and is the
-default**, because it's the more modern and better maintained of the two: it
-has real key exchange, delivery and read receipts, and an offline queue that
-sends your messages once the other person reconnects. LAN Messenger is still
-fully there for everyone who uses it.
-
-I also made sure one broken network can't take down the other. If LAN
-Messenger can't open its sockets, BeeBEEP keeps working and the UI tells you
-which network is unavailable instead of failing completely.
-
-The rest is the polish I always wanted from the originals: light, dark and
-system themes, an interface in Portuguese, search across all contacts, unread
-highlights, and a title bar built into the app.
+That was a great moment, and it came with the most important lesson of the
+project: **you prove you're compatible by testing against the real thing, not
+against yourself.**
 
 ## The final product
 
-The result is **BeeBep LAN Messenger**, a desktop app for Windows and Linux
-that:
+The result is **BeeBep LAN Messenger**, one desktop app that:
 
-- appears as a normal peer on **both** BeeBEEP and LAN Messenger networks at the
-  same time, with no server and no setup;
-- talks to the original BeeBEEP and LAN Messenger clients in both directions,
-  tested against real machines on the office network;
-- shows every contact from both networks in one list, with presence, unread
-  counters and search;
-- supports direct messages, delivery and read receipts (where the protocol
-  has them), and an offline queue on BeeBEEP;
-- keeps working on one network if the other fails to start.
+- shows up on **both** networks at the same time, with no server and no setup;
+- chats with people still using the original BeeBEEP or LAN Messenger, in both
+  directions, so nobody else has to change anything;
+- puts every contact from both networks in one list, with who's online,
+  unread counters and search;
+- **defaults to BeeBEEP**, the better of the two, while keeping LAN Messenger
+  fully there for whoever uses it;
+- keeps working on one network even if the other one breaks.
 
-The code is a TypeScript monorepo, one package per layer (codec, engine,
-adapter, unified client, desktop app), with a test suite built from real wire
-captures:
+It's not a bridge that translates between the two. It's simply one person who
+speaks both languages, sitting in both rooms at once.
+
+The code is on GitHub:
 **[github.com/Lmedeiros-leiman/LanMessaging-BeeBeepLanMessenger](https://github.com/Lmedeiros-leiman/LanMessaging-BeeBeepLanMessenger)**
-
-### Tools I used
-
-- **[TypeScript](https://www.typescriptlang.org/)** on
-  **[Node.js 24](https://nodejs.org/)** for everything: codecs, engines and the
-  app. It uses Node's built-in `node:dgram` (UDP), `node:net` (TCP),
-  `node:crypto` and the `node:test` test runner.
-- **[Electron](https://www.electronjs.org/)** for the desktop app, with plain
-  HTML, CSS and TypeScript for the interface (no UI framework).
-- **[Effect](https://effect.website/)** for typed errors at the domain
-  boundaries, so every failure has a name and a shape instead of a random
-  `throw`.
-- **[esbuild](https://esbuild.github.io/)** to bundle the desktop app.
-- **[GitHub Actions](https://github.com/features/actions)** to run the tests
-  and an Electron smoke test on every pull request.
-- The original **[BeeBEEP](https://sourceforge.net/projects/beebeep/)** and
-  **[LAN Messenger](https://github.com/lanmessenger/lanmessenger)** source code
-  as the reference spec, plus packet captures from the real apps.
-
-## What's next
-
-The next milestone is feature parity: local message history (SQLite, keyed by
-contact and never by IP), file transfer, and groups. After that comes the part
-I'm most excited about: themes, an editable UI, and a plugin API, so the app
-becomes a platform and not just another closed messenger.
 
 ## The real lesson
 
-The networking knowledge is great, and I'll carry it into everything I build.
-But the bigger change is in how I look at things. That "this is just how it is"
-feeling is often wrong. If something annoys you every day and you have the
-source, the docs, or even just the packets, you're not stuck with it.
+I came out of this knowing a lot more about networks, and that knowledge will
+stay with me. But two other things changed more.
+
+First, that "this is just how it is" feeling is often wrong. If something
+annoys you every day and you can get at the source, or even just watch what
+it sends, you're not stuck with it.
+
+Second, you don't need the "proper" tool to fix it. You need the tool *you* can
+move fast with. For me that was JavaScript: simpler, more abstract, and good
+enough to stand right next to two C++ apps and speak their language.
 
 You can fix it. I did.
