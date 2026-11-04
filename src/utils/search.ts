@@ -1,20 +1,24 @@
 // Shared by the build (to index posts) and the browser (to match the query),
-// so both sides fold text the same way: lowercase, no accents, no markup.
+// so both sides fold text exactly the same way.
 
-/** Lowercases, removes accents ("conversão" -> "conversao") and collapses spaces. */
+/**
+ * Lowercases, removes accents ("conversão" -> "conversao"), drops Markdown
+ * formatting characters and collapses spaces. Characters that are part of
+ * names people search for, like "_" in snake_case or "#" in C#, are kept.
+ */
 export function normalize(text: string): string {
 	return text
 		.normalize('NFD')
-		.replace(/[̀-ͯ]/g, '')
+		.replace(/\p{M}/gu, '')
 		.toLowerCase()
+		.replace(/[`*>|~]/g, ' ')
 		.replace(/\s+/g, ' ')
 		.trim();
 }
 
 /** Plain, normalized text of a post, used as its search index. */
 export function searchText(title: string, description: string, body: string): string {
-	const plainBody = body
-		.replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1') // links and images: keep the label
-		.replace(/[`*_#>|~]/g, ' '); // markdown symbols
+	// Links and images: keep both the label and the address, so "beebeep.net" is found.
+	const plainBody = body.replace(/!?\[([^\]]*)\]\(([^)]*)\)/g, '$1 $2');
 	return normalize(`${title} ${description} ${plainBody}`);
 }

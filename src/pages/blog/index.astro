@@ -51,7 +51,7 @@ const entries = await getPosts();
 					? ''
 					: shown === 0
 						? 'No posts match that search.'
-						: `${shown} of ${items.length} posts`;
+						: `${shown} of ${items.length} ${items.length === 1 ? 'post' : 'posts'}`;
 
 			// Keep the query in the address so a search can be shared or reloaded.
 			const url = new URL(location.href);
@@ -60,9 +60,11 @@ const entries = await getPosts();
 			history.replaceState(null, '', url);
 		};
 
-		input.value = new URL(location.href).searchParams.get('q') ?? '';
+		const initial = new URL(location.href).searchParams.get('q');
+		input.value = initial ?? '';
 		input.addEventListener('input', run);
-		if (input.value) run();
+		// Also runs for an empty ?q=, which then gets removed from the address.
+		if (initial !== null) run();
 	}
 </script>
 
@@ -87,7 +89,8 @@ const entries = await getPosts();
 		box-sizing: border-box;
 		width: 100%;
 		padding: 0.75rem 0.875rem;
-		border: 1px solid var(--rule);
+		/* --muted, not --rule: a form field's edge needs 3:1 against the page. */
+		border: 1px solid var(--muted);
 		border-radius: 6px;
 		background: var(--code-bg);
 		color: var(--text);
