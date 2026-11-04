@@ -27,8 +27,12 @@ const CODE = /(```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]+`)/g;
 function proseText(text: string): string {
 	return (
 		text
-			// Links and images: keep both the label and the address, so "beebeep.net" is found.
-			.replace(/!?\[([^\]]*)\]\(([^)]*)\)/g, '$1 $2')
+			// HTML comments are invisible on the page, so they must not be searchable
+			// (and draft notes must not end up in the page's search data).
+			.replace(/<!--[\s\S]*?-->/g, ' ')
+			// Links and images: keep both the label and the address, so "beebeep.net" is
+			// found. The address may be wrapped in <...> when it contains spaces.
+			.replace(/!?\[([^\]]*)\]\((?:<([^>]*)>|([^)]*))\)/g, '$1 $2$3')
 			// Autolinks: <https://beebeep.net/> and <me@example.com> keep their address.
 			.replace(/<((?:https?|ftp|mailto):[^>\s]*|[^>\s@]+@[^>\s@]+)>/gi, '$1')
 			// Raw HTML tags: <kbd>Ctrl</kbd>+<kbd>C</kbd> -> Ctrl+C.
