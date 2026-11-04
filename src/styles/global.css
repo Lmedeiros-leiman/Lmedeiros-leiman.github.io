@@ -335,6 +335,16 @@ pre.astro-code {
 		color: var(--shiki-dark) !important;
 	}
 }
+/* Both themes' comment colours are too faint on our code background (WCAG AA
+   needs 4.5:1). Shiki only exposes them as inline styles, so match on those. */
+pre.astro-code span[style*='color:#6a737d' i] {
+	color: #5f6873 !important;
+}
+@media (prefers-color-scheme: dark) {
+	pre.astro-code span[style*='--shiki-dark:#8b8b8b94' i] {
+		color: #a39d93 !important;
+	}
+}
 
 /* Utilities ------------------------------------------------------------- */
 

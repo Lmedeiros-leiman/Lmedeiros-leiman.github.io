@@ -5,9 +5,12 @@ import FormattedDate from './FormattedDate.astro';
 
 interface Props {
 	entries: PostEntry[];
+	/** Heading level for post titles; use 2 when the list sits directly under the page's h1. */
+	headingLevel?: 2 | 3;
 }
 
-const { entries } = Astro.props;
+const { entries, headingLevel = 3 } = Astro.props;
+const Heading = headingLevel === 2 ? 'h2' : 'h3';
 ---
 
 <ol class="post-list" reversed>
@@ -19,9 +22,9 @@ const { entries } = Astro.props;
 					<FormattedDate date={post.data.pubDate} />
 					<span>{minutes} min read</span>
 				</p>
-				<h3>
+				<Heading class="post-title">
 					<a href={`/blog/${post.id}/`}>{post.data.title}</a>
-				</h3>
+				</Heading>
 				<p class="description">{post.data.description}</p>
 			</li>
 		))
@@ -41,18 +44,18 @@ const { entries } = Astro.props;
 	li:last-child {
 		border-bottom: 1px solid var(--rule);
 	}
-	h3 {
+	.post-title {
 		margin: 0.375rem 0 0.5rem;
 		font-size: 1.5rem;
 		font-weight: 600;
 		letter-spacing: -0.01em;
 		line-height: 1.25;
 	}
-	h3 a {
+	.post-title a {
 		color: var(--text);
 		text-decoration: none;
 	}
-	h3 a:hover {
+	.post-title a:hover {
 		color: var(--accent);
 	}
 	.description {
