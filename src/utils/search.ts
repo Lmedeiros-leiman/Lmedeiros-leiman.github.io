@@ -11,6 +11,8 @@ export function normalize(text: string): string {
 		.normalize('NFD')
 		.replace(/\p{M}/gu, '')
 		.toLowerCase()
+		.replace(/[‘’]/g, "'") // phones often type curly quotes: can’t -> can't
+		.replace(/[“”]/g, '"')
 		.replace(/[`*>|~]/g, ' ')
 		.replace(/\s+/g, ' ')
 		.trim();

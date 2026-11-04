@@ -355,7 +355,13 @@ pre.astro-code {
 }
 @media (prefers-color-scheme: dark) {
 	pre.astro-code span[style*='--shiki-dark:#8b8b8b94' i] {
-		color: #a39d93 !important;
+		color: #a39d93 !important; /* comments: 2.54 -> 6.11 */
+	}
+	pre.astro-code span[style*='--shiki-dark:#65737e' i] {
+		color: #8f9aa3 !important; /* markdown separators (---, ***): 3.37 -> 5.73 */
+	}
+	pre.astro-code span[style*='--shiki-dark:#00000050' i] {
+		color: #a39d93 !important; /* fenced code inside markdown: 1.11 -> 6.11 */
 	}
 }
 

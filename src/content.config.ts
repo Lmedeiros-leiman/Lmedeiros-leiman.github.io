@@ -7,7 +7,12 @@ import { z } from 'astro/zod';
 // date without an explicit timezone as UTC.
 const ISO_DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/; // already parsed as UTC
 const ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?$/; // no zone
-const HAS_ZONE = /(?:z|utc|gmt|[+-]\d{2}:?\d{2})$/i;
+// A zone only counts right after a time ("12:00-03:00", "12:00Z", "12:00 EST")
+// or as a UTC/GMT marker, so dates like "11-03-2026" aren't mistaken for an
+// offset and "10:00 am" isn't mistaken for a zone name. An unknown zone name
+// makes an invalid date, which fails the build instead of shifting the date.
+const HAS_ZONE =
+	/(?:\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?\s*(?:z|[+-]\d{2}:?\d{2}|(?!(?:am|pm)$)[a-z]{2,5})|\b(?:utc|gmt)(?:[+-]\d{2}:?\d{2})?)$/i;
 
 function toUtcDateInput(value: unknown): unknown {
 	if (typeof value !== 'string') return value; // YAML dates arrive as Date objects
