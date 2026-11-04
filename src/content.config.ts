@@ -2,27 +2,55 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
-// Dates like 'Nov 03 2026' would be parsed in the build machine's timezone, so
-// the same post could show a different day locally and on GitHub. Read every
-// date without an explicit timezone as UTC.
-const ISO_DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/; // already parsed as UTC
-const ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?$/; // no zone
-// A zone only counts right after a time ("12:00-03:00", "12:00Z", "12:00 EST")
-// or as a UTC/GMT marker, so dates like "11-03-2026" aren't mistaken for an
-// offset and "10:00 am" isn't mistaken for a zone name. An unknown zone name
-// makes an invalid date, which fails the build instead of shifting the date.
-const HAS_ZONE =
-	/(?:\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?\s*(?:z|[+-]\d{2}:?\d{2}|(?!(?:am|pm)$)[a-z]{2,5})|\b(?:utc|gmt)(?:[+-]\d{2}:?\d{2})?)$/i;
+// Post dates must mean the same day on every machine. JavaScript reads many
+// date strings in the local timezone, and guessing every format people might
+// type is a losing game, so only these forms are accepted:
+//   'Nov 03 2026' or 'November 3, 2026'  -> that day, in UTC
+//   '2026-11-03'                         -> that day, in UTC
+//   '2026-11-03T12:00:00'                -> that time, in UTC
+//   '2026-11-03T12:00:00-03:00' / ...Z   -> that exact moment
+//   unquoted YAML dates (2026-11-03)     -> already UTC
+// Anything else fails the build with a message, instead of shifting the date.
+// Groups: year, month, day, time, zone.
+const ISO = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?)(Z|[+-]\d{2}:?\d{2})?)?$/i;
+// Groups: day.
+const MONTH_DAY_YEAR = /^[a-z]{3,9}\.? (\d{1,2}),? \d{4}$/i;
 
-function toUtcDateInput(value: unknown): unknown {
-	if (typeof value !== 'string') return value; // YAML dates arrive as Date objects
-	const text = value.trim();
-	if (ISO_DATE_ONLY.test(text) || HAS_ZONE.test(text)) return text;
-	if (ISO_DATE_TIME.test(text)) return `${text}Z`;
-	return `${text} UTC`;
+/** True if the day exists in that month (rejects '2026-02-30', which JS rolls to Mar 2). */
+function isRealDay(year: number, month: number, day: number): boolean {
+	const date = new Date(Date.UTC(year, month - 1, day));
+	return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
 
-const utcDate = z.preprocess(toUtcDateInput, z.coerce.date());
+function parseUtcDate(value: string): Date | undefined {
+	const text = value.trim();
+	let candidate: string | undefined;
+	const iso = ISO.exec(text);
+	const named = MONTH_DAY_YEAR.exec(text);
+	if (iso) {
+		if (!isRealDay(Number(iso[1]), Number(iso[2]), Number(iso[3]))) return undefined;
+		candidate = iso[4] && !iso[5] ? `${text}Z` : text; // a time without a zone means UTC
+	} else if (named) {
+		candidate = `${text} UTC`;
+	}
+	if (!candidate) return undefined;
+	const date = new Date(candidate);
+	if (Number.isNaN(date.valueOf())) return undefined;
+	// 'Feb 30 2026' would also roll over; the day must survive parsing unchanged.
+	if (named && date.getUTCDate() !== Number(named[1])) return undefined;
+	return date;
+}
+
+const utcDate = z.unknown().transform((value, ctx): Date => {
+	if (value instanceof Date && !Number.isNaN(value.valueOf())) return value;
+	const date = typeof value === 'string' ? parseUtcDate(value) : undefined;
+	if (date) return date;
+	ctx.addIssue({
+		code: 'custom',
+		message: `Unsupported date ${JSON.stringify(value)}. Use 'Nov 03 2026', '2026-11-03', or an ISO timestamp such as '2026-11-03T12:00:00-03:00'.`,
+	});
+	return z.NEVER;
+});
 
 const blog = defineCollection({
 	// Load Markdown and MDX files in the `src/content/blog/` directory.
