@@ -83,8 +83,11 @@ const blog = defineCollection({
 			title: z.string(),
 			description: z.string(),
 			pubDate: utcDate,
-			// A blank `updatedDate:` (YAML null) counts as no update date.
-			updatedDate: z.preprocess((value) => value ?? undefined, utcDate.optional()),
+			// A blank `updatedDate:` (YAML null) or `updatedDate: ''` counts as no update date.
+			updatedDate: z.preprocess(
+				(value) => (value == null || (typeof value === 'string' && !value.trim()) ? undefined : value),
+				utcDate.optional(),
+			),
 			heroImage: z.optional(image()),
 		}),
 });
