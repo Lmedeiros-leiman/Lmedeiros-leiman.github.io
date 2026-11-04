@@ -65,9 +65,11 @@ const utcDate = z.unknown().transform((value, ctx): Date => {
 	ctx.addIssue({
 		code: 'custom',
 		message:
-			value instanceof Date
-				? `Dates must be in quotes, so a typo like 2026-02-30 can't silently become another day. ${FORMATS}`
-				: `Unsupported date ${JSON.stringify(value)}. ${FORMATS}`,
+			value === undefined || value === null
+				? `Required. ${FORMATS}`
+				: value instanceof Date
+					? `Dates must be in quotes, so a typo like 2026-02-30 can't silently become another day. ${FORMATS}`
+					: `Unsupported date ${JSON.stringify(value)}. ${FORMATS}`,
 	});
 	return z.NEVER;
 });
@@ -81,7 +83,8 @@ const blog = defineCollection({
 			title: z.string(),
 			description: z.string(),
 			pubDate: utcDate,
-			updatedDate: utcDate.optional(),
+			// A blank `updatedDate:` (YAML null) counts as no update date.
+			updatedDate: z.preprocess((value) => value ?? undefined, utcDate.optional()),
 			heroImage: z.optional(image()),
 		}),
 });
