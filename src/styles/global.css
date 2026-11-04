@@ -331,6 +331,7 @@ pre.astro-code {
 	background-color: var(--code-bg) !important;
 }
 @media (prefers-color-scheme: dark) {
+	pre.astro-code,
 	pre.astro-code span {
 		color: var(--shiki-dark) !important;
 	}
