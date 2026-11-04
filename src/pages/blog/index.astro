@@ -8,5 +8,113 @@ const entries = await getPosts();
 
 <Page title="Posts" description="All posts by Leonardo Medeiros Leiman, newest first.">
 	<h1 class="page-title">Posts</h1>
-	<PostList entries={entries} headingLevel={2} />
+
+	<!-- Hidden until the script runs, so visitors without JavaScript don't get a dead box. -->
+	<search class="search" data-search-box hidden>
+		<label for="post-search">Search posts</label>
+		<input
+			id="post-search"
+			type="search"
+			placeholder="Search titles and text"
+			autocomplete="off"
+			spellcheck="false"
+		/>
+		<p class="search-status" role="status" aria-live="polite"></p>
+	</search>
+
+	<PostList entries={entries} headingLevel={2} searchable />
 </Page>
+
+<script>
+	import { normalize } from '../../utils/search';
+
+	const box = document.querySelector<HTMLElement>('[data-search-box]');
+	const input = document.querySelector<HTMLInputElement>('#post-search');
+	const status = box?.querySelector<HTMLElement>('.search-status');
+	const items = [...document.querySelectorAll<HTMLElement>('.post-list > li[data-search]')];
+
+	if (box && input && status) {
+		box.hidden = false;
+
+		const run = () => {
+			// Every word must appear somewhere in the post, in any order.
+			const words = normalize(input.value).split(' ').filter(Boolean);
+			let shown = 0;
+			for (const item of items) {
+				const text = item.dataset.search ?? '';
+				const match = words.every((word) => text.includes(word));
+				item.hidden = !match;
+				if (match) shown++;
+			}
+			status.textContent =
+				words.length === 0
+					? ''
+					: shown === 0
+						? 'No posts match that search.'
+						: `${shown} of ${items.length} posts`;
+
+			// Keep the query in the address so a search can be shared or reloaded.
+			const url = new URL(location.href);
+			if (words.length) url.searchParams.set('q', input.value);
+			else url.searchParams.delete('q');
+			history.replaceState(null, '', url);
+		};
+
+		input.value = new URL(location.href).searchParams.get('q') ?? '';
+		input.addEventListener('input', run);
+		if (input.value) run();
+	}
+</script>
+
+<style>
+	.search {
+		display: block;
+		margin: 0 0 2rem;
+	}
+	.search[hidden] {
+		display: none;
+	}
+	.search label {
+		display: block;
+		margin-bottom: 0.5rem;
+		font-family: var(--font-sans);
+		font-size: 0.875rem;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+	.search input {
+		box-sizing: border-box;
+		width: 100%;
+		padding: 0.75rem 0.875rem;
+		border: 1px solid var(--rule);
+		border-radius: 6px;
+		background: var(--code-bg);
+		color: var(--text);
+		font: inherit;
+		font-size: 1.0625rem;
+	}
+	.search input::placeholder {
+		color: var(--muted);
+		opacity: 1;
+	}
+	.search input:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+		border-color: var(--accent);
+	}
+	.search-status {
+		margin: 0.625rem 0 0;
+		min-height: 1.25em;
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		color: var(--muted);
+	}
+	.search-status:empty {
+		min-height: 0;
+		margin: 0;
+	}
+	:global(.post-list > li[hidden]) {
+		display: none;
+	}
+</style>

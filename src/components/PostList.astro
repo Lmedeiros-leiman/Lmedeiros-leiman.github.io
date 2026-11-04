@@ -1,22 +1,31 @@
 ---
 import type { PostEntry } from '../utils/posts';
 import { formatNumber } from '../utils/posts';
+import { searchText } from '../utils/search';
 import FormattedDate from './FormattedDate.astro';
 
 interface Props {
 	entries: PostEntry[];
 	/** Heading level for post titles; use 2 when the list sits directly under the page's h1. */
 	headingLevel?: 2 | 3;
+	/** Adds a lowercased, accent-free copy of each post's text for the search box. */
+	searchable?: boolean;
 }
 
-const { entries, headingLevel = 3 } = Astro.props;
+const { entries, headingLevel = 3, searchable = false } = Astro.props;
 const Heading = headingLevel === 2 ? 'h2' : 'h3';
 ---
 
 <ol class="post-list" reversed>
 	{
 		entries.map(({ post, number, minutes }) => (
-			<li>
+			<li
+				data-search={
+					searchable
+						? searchText(post.data.title, post.data.description, post.body ?? '')
+						: undefined
+				}
+			>
 				<p class="meta">
 					<span>{formatNumber(number)}</span>
 					<FormattedDate date={post.data.pubDate} />
