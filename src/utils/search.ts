@@ -19,20 +19,21 @@ export function normalize(text: string): string {
 		.trim();
 }
 
-// Fenced blocks (``` or ~~~) and inline `code`. Their text is shown exactly as
-// written, so it is indexed verbatim: List<string> must stay searchable.
-const CODE = /(```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]+`)/g;
+// One left-to-right scan over code and HTML comments, so whichever starts first
+// wins: code inside a comment stays hidden, a comment inside code stays visible.
+//   group 1: fenced blocks (``` or ~~~) and inline `code`, shown exactly as
+//            written, so indexed verbatim (List<string> must stay searchable)
+//   no group: <!-- comments -->, invisible on the page, so never indexed
+//            (draft notes must not end up in the page's search data)
+const CODE_OR_COMMENT = /(```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]+`)|<!--[\s\S]*?(?:-->|$)/g;
 
-/** Turns Markdown prose (not code) into the text a reader sees. */
+/** Turns Markdown prose (no code, no comments) into the text a reader sees. */
 function proseText(text: string): string {
 	return (
 		text
-			// HTML comments are invisible on the page, so they must not be searchable
-			// (and draft notes must not end up in the page's search data).
-			.replace(/<!--[\s\S]*?-->/g, ' ')
 			// Links and images: keep both the label and the address, so "beebeep.net" is
-			// found. The address may be wrapped in <...> when it contains spaces.
-			.replace(/!?\[([^\]]*)\]\((?:<([^>]*)>|([^)]*))\)/g, '$1 $2$3')
+			// found. The address may be wrapped in <...> and followed by a "title".
+			.replace(/!?\[([^\]]*)\]\((?:<([^>]*)>|([^)\s]*))(?:\s+"[^"]*")?\)/g, '$1 $2$3')
 			// Autolinks: <https://beebeep.net/> and <me@example.com> keep their address.
 			.replace(/<((?:https?|ftp|mailto):[^>\s]*|[^>\s@]+@[^>\s@]+)>/gi, '$1')
 			// Raw HTML tags: <kbd>Ctrl</kbd>+<kbd>C</kbd> -> Ctrl+C.
@@ -48,10 +49,13 @@ function proseText(text: string): string {
 
 /** Plain, normalized text of a post, used as its search index. */
 export function searchText(title: string, description: string, body: string): string {
-	// split() with a capturing group alternates prose (even) and code (odd) parts.
-	const plainBody = body
-		.split(CODE)
-		.map((part, i) => (i % 2 ? part : proseText(part)))
-		.join(' ');
+	let plainBody = '';
+	let last = 0;
+	for (const match of body.matchAll(CODE_OR_COMMENT)) {
+		plainBody += proseText(body.slice(last, match.index)) + ' ';
+		if (match[1]) plainBody += match[1] + ' '; // code: verbatim; comment: dropped
+		last = match.index + match[0].length;
+	}
+	plainBody += proseText(body.slice(last));
 	return normalize(`${title} ${description} ${plainBody}`);
 }
