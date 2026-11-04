@@ -335,10 +335,23 @@ pre.astro-code {
 		color: var(--shiki-dark) !important;
 	}
 }
-/* Both themes' comment colours are too faint on our code background (WCAG AA
-   needs 4.5:1). Shiki only exposes them as inline styles, so match on those. */
-pre.astro-code span[style*='color:#6a737d' i] {
-	color: #5f6873 !important;
+/* Some theme colours are too faint on our tinted code background (WCAG AA
+   needs 4.5:1). Shiki only exposes them as inline styles, so match on those.
+   The light fixes must stay inside the light media query: they are more
+   specific than the dark rule above and would otherwise leak into dark mode. */
+@media (prefers-color-scheme: light) {
+	pre.astro-code span[style*='color:#6a737d' i] {
+		color: #5f6873 !important; /* comments: 4.09 -> 4.80 */
+	}
+	pre.astro-code span[style*='color:#d73a49' i] {
+		color: #b02a3a !important; /* keywords: 3.88 -> 5.50 */
+	}
+	pre.astro-code span[style*='color:#e36209' i] {
+		color: #a14a00 !important; /* variables, parameters: 2.96 -> 5.10 */
+	}
+	pre.astro-code span[style*='color:#22863a' i] {
+		color: #1d6f32 !important; /* tags, selectors: 3.93 -> 5.29 */
+	}
 }
 @media (prefers-color-scheme: dark) {
 	pre.astro-code span[style*='--shiki-dark:#8b8b8b94' i] {
