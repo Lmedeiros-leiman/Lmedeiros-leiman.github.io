@@ -11,8 +11,10 @@ Personal blog built with [Astro](https://astro.build), deployed to GitHub Pages.
 ## Post dates
 
 `pubDate` is required. `updatedDate` is optional; leave it out or empty if there's no update.
-Dates must be in quotes, in one of these forms; anything else (or an impossible day like
-Feb 30) fails the build with a message saying what to use:
+Put dates in quotes. Unquoted dates such as `2026-11-03` are refused, because YAML turns
+them into dates itself and silently rolls a typo like Feb 30 over to March. Use one of
+these forms; anything else (or an impossible day) fails the build with a message saying
+what to use:
 
 - A month name, day and year: `'Nov 03 2026'`, `'Nov. 3, 2026'`, `'November 3, 2026'`, `'Sept 3 2026'`
 - `'2026-11-03'`

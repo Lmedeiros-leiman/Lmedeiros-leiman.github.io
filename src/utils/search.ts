@@ -19,18 +19,35 @@ export function normalize(text: string): string {
 		.trim();
 }
 
+// Fenced blocks (``` or ~~~) and inline `code`. Their text is shown exactly as
+// written, so it is indexed verbatim: List<string> must stay searchable.
+const CODE = /(```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]+`)/g;
+
+/** Turns Markdown prose (not code) into the text a reader sees. */
+function proseText(text: string): string {
+	return (
+		text
+			// Links and images: keep both the label and the address, so "beebeep.net" is found.
+			.replace(/!?\[([^\]]*)\]\(([^)]*)\)/g, '$1 $2')
+			// Autolinks: <https://beebeep.net/> and <me@example.com> keep their address.
+			.replace(/<((?:https?|ftp|mailto):[^>\s]*|[^>\s@]+@[^>\s@]+)>/gi, '$1')
+			// Raw HTML tags: <kbd>Ctrl</kbd>+<kbd>C</kbd> -> Ctrl+C.
+			.replace(/<\/?[a-z][^>\n]*>/gi, '')
+			// foo\_bar -> foo_bar, h\@llo -> h@llo (any ASCII punctuation can be escaped).
+			.replace(/\\([!-/:-@[-`{-~])/g, '$1')
+			// AT&amp;T -> AT&T.
+			.replace(/&(amp|lt|gt|quot|#39|apos);/g, (entity, name: string) =>
+				({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", apos: "'" })[name] ?? entity,
+			)
+	);
+}
+
 /** Plain, normalized text of a post, used as its search index. */
 export function searchText(title: string, description: string, body: string): string {
+	// split() with a capturing group alternates prose (even) and code (odd) parts.
 	const plainBody = body
-		// Links and images: keep both the label and the address, so "beebeep.net" is found.
-		.replace(/!?\[([^\]]*)\]\(([^)]*)\)/g, '$1 $2')
-		// Raw HTML tags: <kbd>Ctrl</kbd>+<kbd>C</kbd> -> Ctrl+C.
-		.replace(/<\/?[a-z][^>\n]*>/gi, '')
-		// Index the text as readers see it: foo\_bar -> foo_bar, h\@llo -> h@llo
-		// (Markdown lets any ASCII punctuation be escaped), AT&amp;T -> AT&T.
-		.replace(/\\([!-/:-@[-`{-~])/g, '$1')
-		.replace(/&(amp|lt|gt|quot|#39|apos);/g, (_, name: string) =>
-			({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", apos: "'" })[name] ?? _,
-		);
+		.split(CODE)
+		.map((part, i) => (i % 2 ? part : proseText(part)))
+		.join(' ');
 	return normalize(`${title} ${description} ${plainBody}`);
 }
