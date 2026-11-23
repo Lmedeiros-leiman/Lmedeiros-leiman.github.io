@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="486" viewBox="0 0 720 486" role="img" aria-labelledby="title">
+  <title id="title">How LAN Messenger and BeeBEEP send a file</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#57606a"/>
+    </marker>
+    <style>
+      text { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; fill: #1f2328; }
+      .head { font-size: 18px; font-weight: 700; }
+      .title { font-size: 15px; font-weight: 600; }
+      .sub { font-size: 13px; fill: #424a53; }
+      .box { fill: #ffffff; stroke: #8c959f; stroke-width: 1.5; }
+      .line { stroke: #57606a; stroke-width: 1.5; }
+    </style>
+  </defs>
+  <rect width="720" height="486" fill="#f6f8fa"/>
+
+  <text class="head" x="185" y="38" text-anchor="middle">LAN Messenger</text>
+  <text class="head" x="535" y="38" text-anchor="middle">BeeBEEP</text>
+
+  <!-- LAN Messenger -->
+  <rect class="box" x="25" y="58" width="320" height="82" rx="8"/>
+  <text class="title" x="41" y="84">1. Offer on the chat line</text>
+  <text class="sub" x="41" y="106">an XML file message, "request",</text>
+  <text class="sub" x="41" y="126">with the file's ID, name and size</text>
+  <line class="line" x1="185" y1="140" x2="185" y2="164" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="25" y="166" width="320" height="82" rx="8"/>
+  <text class="title" x="41" y="192">2. Answer on the chat line</text>
+  <text class="sub" x="41" y="214">the other side replies "accept"</text>
+  <line class="line" x1="185" y1="248" x2="185" y2="272" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="25" y="274" width="320" height="82" rx="8"/>
+  <text class="title" x="41" y="300">3. Sender connects to the receiver</text>
+  <text class="sub" x="41" y="322">new TCP connection to port 50000, starting</text>
+  <text class="sub" x="41" y="342">with FILE + the file ID + its user ID</text>
+  <line class="line" x1="185" y1="356" x2="185" y2="380" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="25" y="382" width="320" height="82" rx="8"/>
+  <text class="title" x="41" y="408">4. Receiver answers START</text>
+  <text class="sub" x="41" y="430">then the raw bytes, in pieces of up to</text>
+  <text class="sub" x="41" y="450">65,535 bytes, not locked</text>
+
+  <!-- BeeBEEP -->
+  <rect class="box" x="375" y="58" width="320" height="82" rx="8"/>
+  <text class="title" x="391" y="84">1. Offer on the chat line</text>
+  <text class="sub" x="391" y="106">BEE-FILE: name, size, ID, password,</text>
+  <text class="sub" x="391" y="126">port 6476, date last changed, type</text>
+  <line class="line" x1="535" y1="140" x2="535" y2="164" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="375" y="166" width="320" height="82" rx="8"/>
+  <text class="title" x="391" y="192">2. Receiver connects to the sender</text>
+  <text class="sub" x="391" y="214">new TCP connection to the port</text>
+  <text class="sub" x="391" y="234">named in the offer</text>
+  <line class="line" x1="535" y1="248" x2="535" y2="272" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="375" y="274" width="320" height="82" rx="8"/>
+  <text class="title" x="391" y="300">3. Same hello and lock as the chat</text>
+  <text class="sub" x="391" y="322">then the receiver asks for the file</text>
+  <text class="sub" x="391" y="342">by its ID and password</text>
+  <line class="line" x1="535" y1="356" x2="535" y2="380" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="375" y="382" width="320" height="82" rx="8"/>
+  <text class="title" x="391" y="408">4. The file in pieces, each confirmed</text>
+  <text class="sub" x="391" y="430">the sender waits for the confirmation</text>
+  <text class="sub" x="391" y="450">before it sends the next piece</text>
+</svg>
