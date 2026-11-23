@@ -1,3 +1,7 @@
+## Writing posts
+
+Writing or editing anything in `src/content/blog`: read `.agents/skills/blog-writing/SKILL.md` first, and run `npm run check:writing` on the posts you changed before opening a pull request.
+
 ## Development
 
 When starting the dev server, use background mode:
