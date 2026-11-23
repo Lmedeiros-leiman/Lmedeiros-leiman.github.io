@@ -39,81 +39,46 @@ Neither app has a server. There is no central list of who is online. Each
 copy has to find the others on its own, and both do it the same way. They
 call out to the whole network and wait for someone to answer.
 
-Computers on a network have two common ways to send data, and both apps use
-both. UDP sends single, standalone messages. There is no connection, and no
-promise that a message arrives. TCP opens a connection between two computers,
-a two-way line where the bytes arrive complete and in order. Both apps use
-UDP to call out, and TCP for everything after that.
+Computers on a network have two common ways to send data. TCP opens a
+connection between two computers, and everything sent on it arrives complete
+and in order. UDP fires off a single message with no connection and no promise
+that it lands. That's fine for a quick shout to the whole network, and no good
+for anything that has to arrive.
 
-A call can go out as a broadcast, which every computer on the local network
-receives. Or it can go out as a multicast, which is sent to a group address
-and only reaches the computers that joined that group.
-
-LAN Messenger calls out on UDP port 50000, to the multicast group
-239.255.100.100 and as a broadcast. The call is a short piece of XML, a text
-format where each value sits between labels in angle brackets. It says
-"announce" and carries the sender's user ID. When LAN Messenger starts, it
-sends "depart" and then "announce". A copy that hears an announce from
-someone it doesn't know yet opens a TCP connection to that computer, also on
-port 50000.
-
-BeeBEEP calls out on UDP port 36475, to the multicast group 224.0.64.75 and,
-out of the box, as a broadcast too. Its call is even shorter. It
-doesn't carry a name, only the word "BEE-BEEP" and the TCP port where this
-copy is listening, 6475 by default. A copy that hears it connects to that
-port.
-
-Neither call is locked. Anyone on the network can read them, but there's not
-much to read.
+So both apps use UDP only to say "I'm here", and TCP for everything after
+that. LAN Messenger shouts on UDP port 50000 with its user ID. BeeBEEP shouts
+on port 36475 with the word "BEE-BEEP" and the TCP port where it's listening.
+A copy that hears someone new opens a TCP connection to them, and from then on
+everything goes over that line.
 
 ![Two columns, LAN Messenger and BeeBEEP, four steps each. LAN Messenger: call out over UDP port 50000 to multicast 239.255.100.100 and broadcast, with an XML announce and the user ID; whoever heard it connects over TCP port 50000 and sends MSG with its user ID; the two agree on a secret key using a public key; then they trade name, status and note. BeeBEEP: call out over UDP port 36475 to multicast 224.0.64.75 and broadcast, with BEE-BEEP and the TCP port but no name; whoever heard it connects to that port, 6475; both send a BEE-CIAO hello with name, status, version and a public number, locked with a fixed key; both work out the same key from their own secret number and the other's public number.](../../assets/beebeep/find-and-connect.svg)
 
 ## Saying hello and locking the line
 
 Once the TCP line is open, the two computers introduce themselves and agree
-on a secret key. Every chat message after that is locked with the key, so the
-other computers on the network can't read it.
+on a secret key. Every chat message after that is locked with it, so the
+other computers on the network can't read it. The hard part is agreeing on a
+key without ever sending it in the open.
 
-LAN Messenger uses a lock in two steps. When it starts, each copy makes a
-pair of keys: a public key it hands to anyone, and a private key it keeps.
-Whatever is locked with the public key can only be unlocked with the matching
-private key. Then, on each new line:
+LAN Messenger uses a pair of keys: a public one anyone can have, and a private
+one that unlocks whatever the public one locked. The caller makes up a random
+secret key, locks it with the other side's public key and sends it over.
+BeeBEEP uses math instead: each side mixes its own secret number with the
+other side's public number, and both land on the same key without it ever
+crossing the network. From then on, both lock every message with AES, a
+standard method for locking data with a secret key.
 
-1. The computer that called sends "MSG" followed by its user ID.
-2. The other computer answers with its public key.
-3. The caller makes up a random secret key, locks it with that public key,
-   and sends it back.
-4. The other computer unlocks it with its private key.
-
-Now both sides hold the same secret key, and it never crossed the network in
-the clear. They lock every message with it, using AES, a standard method for
-locking data with a secret key. Only then do they trade names, status, and
-the short note each person can set.
-
-BeeBEEP introduces itself first. The computer that called sends a hello
-message, "BEE-CIAO", and the other side answers with its own. Each hello
-carries fifteen fields, among them the listening port, the name, the status,
-the app version, the computer's name, and a public number.
-
-The key comes from those public numbers. Each side also has a secret number
-that it never sends. It combines its own secret number with the other side's
-public number, and the math gives both sides the same result, even though
-the result itself never crossed the network. That result becomes the key for
-every message after the hello. BeeBEEP also uses AES, and it locks in fixed
-blocks of 16 bytes, so it pads each message with spaces until it fills the
-last block. A byte is the smallest piece of data a computer sends, enough for
-one plain letter like "h".
-
-The hello can't use that key, because the hello is what carries the public
-numbers. So BeeBEEP locks the hello with a key made from a network password
-instead, or at least it means to.
+BeeBEEP's hello is the one message that can't use that key, because the hello
+is what carries the public numbers. So BeeBEEP locks the hello with a key made
+from a network password instead, or at least it means to.
 
 ## What one message looks like
 
 Say I type "hi" and press Enter. Each app wraps it in a few layers before it
 goes on the line.
 
-LAN Messenger writes it as XML:
+LAN Messenger writes it as XML, a text format where each value sits between
+labels in angle brackets:
 
 ```xml
 <lmcmessage>
@@ -131,60 +96,34 @@ LAN Messenger writes it as XML:
 </lmcmessage>
 ```
 
-The head says who it's from, who it's for, the message number and the type.
-The body has the font, the color and the text. The app locks all of that,
-puts the six letters "MESSAG" in front so the other side knows what kind of
-data it is, and puts the length in front of everything as a 4-byte number.
-That number is the size label. It tells the receiver how many bytes to read
-before the message ends.
+The head says who it's from and who it's for, and the body has the text and
+how to draw it. BeeBEEP writes the same thing as one line of short fields,
+starting with the kind of message, "BEE-CHAT", and ending with the text.
 
-When it arrives, the receiver unlocks it, shows it, and sends back an
-"acknowledge" with the same message number. If the acknowledge doesn't come
-in time, the sender sends the message again.
+Both apps then lock the message and put its length in front, written as a
+number. That number is the size label: it tells the receiver how many bytes
+to read before the message ends. A byte is the smallest piece of data a
+computer sends, enough for one plain letter like "h".
 
-BeeBEEP doesn't use XML. It writes the message as one line of seven fields,
-separated by an invisible character:
-
-1. the kind of message, "BEE-CHAT";
-2. a message number;
-3. the length of the text;
-4. a number for the flags, where 1 means a private chat;
-5. a data field for extras like the text color, empty here;
-6. the time;
-7. the text itself, "hi".
-
-Every kind of BeeBEEP message starts with a word like that. The hello is
-"BEE-CIAO", the call on the network is "BEE-BEEP", and a file offer is
-"BEE-FILE". BeeBEEP pads the line with spaces, locks it block by block, and
-puts the size label in front.
-
-When it arrives, the receiver sends back "BEE-RECV" with the message's
-number, so the sender knows it was delivered. When the person opens the chat,
-their app sends "BEE-READ", and the message shows as read.
+Both also confirm delivery. The receiver answers with the message's number,
+and LAN Messenger sends the message again if that answer doesn't come.
+BeeBEEP also tells the sender when the message was read.
 
 ![Two columns showing how the text "hi" is wrapped. LAN Messenger: write it as XML with a head and a body, lock it with AES, put MESSAG in front, put a 4-byte size label in front, send it on the TCP line. BeeBEEP: write it as one line of seven fields separated by an invisible character, pad it with spaces to whole 16-byte blocks and lock it, put the size label in front, 4 bytes but only 2 on the hello, send it on the TCP line.](../../assets/beebeep/message-wrapping.svg)
 
 ## How files travel
 
 Neither app sends a file through the chat line. The chat line carries the
-offer and the answer, and the file itself goes over a second TCP connection.
-The details differ, down to who calls whom.
+offer and the answer, and the file travels over a second TCP connection.
 
-In LAN Messenger, the offer is an XML "file" message saying "request", with
-the file's ID, name and size. The other side answers "accept". Then the
-sender opens a new connection to the receiver, on the same port 50000 as the
-chat, and starts it with "FILE", the file's ID and its own user ID. The
-receiver answers "START", and the sender streams the file in pieces of up to
-65,535 bytes. Those pieces aren't locked. Only the chat line is.
+In LAN Messenger, once the other person accepts, the sender calls the
+receiver and streams the file across in pieces. The chat line is locked, but
+the file isn't.
 
-In BeeBEEP, the offer is a "BEE-FILE" message with the file's name, its size,
-an ID, a password for this one file, the date the file was last changed, its
-type, and the port where the sender waits for file connections, 6476 by
-default. If the other person accepts, their app connects to that port. The
-new connection starts with the same hello and the same lock as the chat.
-Then the receiver asks for the file by its ID and password, and the sender
-sends it in pieces. The receiver confirms each piece, and the sender waits
-for that confirmation before it sends the next one.
+In BeeBEEP the receiver calls the sender. That connection starts with the
+same hello and lock as the chat, and the receiver asks for the file with a
+password made for that one file. The sender waits for each piece to be
+confirmed before it sends the next.
 
 ![Two columns comparing file transfers. LAN Messenger: an XML file request with ID, name and size on the chat line; the other side answers accept; the sender connects to the receiver on port 50000 and starts with FILE, the file ID and its user ID; the receiver answers START and the raw bytes follow in pieces of up to 65,535 bytes, not locked. BeeBEEP: a BEE-FILE offer with name, size, ID, password, port 6476, date last changed and type; the receiver connects to the sender on that port; same hello and lock as the chat, then the receiver asks for the file by ID and password; the file comes in pieces, each one confirmed before the next.](../../assets/beebeep/file-transfer.svg)
 
@@ -224,8 +163,8 @@ I had AI tools around while I did this, but I used them for small pieces, and
 I checked every line they gave me against the original apps. Later I also set
 up workflows where AI agents wrote the code for a piece of work I had already
 planned. I still read everything that came back and decided every next step
-myself. I didn't trust them to drive. Code like this has to match another
-program byte for byte, and I didn't want something guessing at it.
+myself. I didn't trust them to drive: code like this has to match another
+program byte for byte.
 
 Only when the translator was right did I connect it to the real network.
 Eventually I had a small desktop window where LAN Messenger contacts showed
@@ -251,8 +190,12 @@ on the spot.
 The problem was that my two copies agreed with each other because they had
 the same mistakes. Testing against myself proved nothing.
 
-So I recorded what the real BeeBEEP was sending and compared it against its
-code, line by line. Both problems were in the hello.
+I could tell something in the hello was wrong, but I couldn't pin it down, and
+tests like this were always hard for me to get right. I had heard engineers say
+AI models were decent at exactly this kind of digging, so I tried it. I
+recorded what the real BeeBEEP was sending and gave the model the recording
+and the original source code. A few hours later it came back with the cause:
+two problems, both in the hello.
 
 The first was the size label. Every message after the hello has a 4-byte size
 label. But when the hello goes out, neither side knows the other's version
@@ -265,38 +208,27 @@ backwards, so every byte of the key stays zero, whatever the password is. The
 hello is locked with a key of nothing but zeros. Right above that line sits a
 comment that literally says "What the hell...".
 
-I copied both quirks exactly. The next time I ran it, my program showed up in
-the real BeeBEEP's contact list, and its people showed up in mine.
+My program now copies both quirks exactly. The next time I ran it, my program
+showed up in the real BeeBEEP's contact list, and its people showed up in mine.
 
-That day also changed how I tested. From then on, my tests checked my program
-against recordings of the real apps and against their code, never just
-against another copy of itself.
+That day changed two things. My tests now check my program against recordings
+of the real apps and against their code, never just against another copy of
+itself. And I had watched the model find in a few hours what I hadn't found at
+all.
 
 ## Putting it together
 
 With both working, I put them into one desktop app. It's built in four
-layers, and each layer only talks to the ones next to it.
-
-At the bottom are the two translators, one per protocol. They turn a message
-into exact bytes and back, and nothing else. They never touch the network.
-
-Above each translator is an engine, one per network. The engine does
-everything from the sections above. It calls out, opens connections, says
-hello, locks and unlocks, sends receipts, resends what wasn't confirmed, and
-moves files. It uses its translator for every message.
-
-Above the engines is a common layer that makes both networks look the same.
-For each network, an adapter turns the engine's events into the same few
-things: a contact, a message, a file transfer. Then one piece collects both
-networks, gives every contact an ID that starts with the name of its network,
-and sends each message to the right engine. Two people with the same name on
-different networks never get mixed up. If one network fails to start, the
-other keeps working.
-
-At the top is the window. It's a desktop app built with Electron, which lets
-you build a desktop app with the same tools as a web page. The window only
-talks to the common layer. It doesn't know what XML is, or what "BEE-CHAT"
-means.
+layers, and each layer only talks to the ones next to it. At the bottom, one
+translator per protocol turns messages into exact bytes and back. Above each
+sits an engine that does everything from the sections above: calling out,
+connecting, saying hello, locking, receipts and files. Above the engines, a
+common layer makes both networks look the same, so a contact or a message is
+the same thing whichever network it came from. Every contact's ID starts with
+its network's name, so two people with the same name never get mixed up. At
+the top is the window, built with Electron, which makes desktop apps with the
+same tools as a web page. The window doesn't know what XML is, or what
+"BEE-CHAT" means.
 
 ![The app's layers, top to bottom: the window, which only talks to the common layer; the common layer, where one adapter per network turns both into contacts, messages and file transfers, and contact IDs start with the network's name; side by side, the BeeBEEP engine and the LAN Messenger engine, each with its own translator inside; and at the bottom, the office network with the original apps on other computers.](../../assets/beebeep/app-layers.svg)
 
@@ -320,27 +252,18 @@ directions, from the same window. The two icons in the corner became one.
 That was the finish line I had set for myself: one window, both networks,
 talking to the original apps in both directions.
 
-Up to there, the understanding was mine. I read the C++ myself, wrote down
-each protocol myself, and found the quirks by putting recordings next to the
-code. AI had helped with pieces along the way, and I had checked every line
-of it.
+Up to there, I had kept the AI on a short leash: small pieces, every line
+checked, and the one BeeBEEP day when I let it dig on its own. That day stayed
+with me.
 
-Once I was past the line, I decided to try it the other way and let the AI do
-the work while I directed it. I didn't expect much. I expected to spend my
-time fixing what it got wrong.
+So once I was past the line, I let the AI do the work while I directed it. I
+still expected to spend my time fixing what it got wrong.
 
 Instead, it had to prove every change. Each one came with a test that failed
 before the change and passed after it. The tests checked my app against
 recordings and the code of the real BeeBEEP and LAN Messenger, not against
 itself. That was the lesson from the day BeeBEEP didn't work, and now it
 applied to the AI too.
-
-Before the bigger changes went in, a second AI, a different model, reviewed
-the first one's work and tried to break it. More than once it found something
-real. It found that if I changed my name in the app, file transfers to
-BeeBEEP would still introduce me by the old one. Each file connection starts
-with its own hello, and that hello still carried the old name. I would never
-have caught that by hand.
 
 And I kept using it every day on the office network. That was the last check,
 and the one I trusted most.
@@ -356,19 +279,26 @@ follows came after that decision.
 
 ## A third me
 
-Once I used it for real, my colleagues saw a new contact with my name. To
-them there was the me on BeeBEEP, the me on LAN Messenger, and now a third
-one.
+Once I used it for real, my colleagues saw a third me in their list. I had
+copied LAN Messenger's ID recipe with one wrong ingredient: my display name
+where it uses my Windows login, next to the network card. BeeBEEP's ID I hadn't
+copied at all. BeeBEEP knows people by their name and a random code it saves
+the first time it runs, and my app had made up its own. To both apps, I was
+someone new.
 
-Their apps had no way to know it was the same person. LAN Messenger
-recognises people by the user ID that goes in every announce and every
-message, built from the computer's network card and the Windows login.
-BeeBEEP recognises them by name and by a random code it saves the first time
-it runs and sends in every hello. My app had introduced itself with its own.
+Now my app reads both apps' settings on my computer, without changing them,
+and introduces itself with the same name and ID. I'm one person again.
 
-So now my app reads the original apps' settings on my computer, without
-changing them, and introduces itself with the same name and the same ID. To
-my colleagues I'm one person again, whichever app I happen to have open.
+From this I learned the AI could make it work, but it still didn't know my
+intent. So I got more critical of its work and asked it a lot of questions,
+often idiotic ones. Asking those questions was a job an agent could do too, so
+I started handing it to one: a GPT reviewer that reads the other AI's changes
+and tries to break them.
+
+It found real things. If I changed my name in the app, file transfers to
+BeeBEEP would still introduce me by the old one: each file connection starts
+with its own hello, and that hello still carried the old name. I would never
+have caught that by hand.
 
 ## Bugs you only find by using it
 
@@ -409,8 +339,8 @@ Besides chatting, it can:
 ![The preferences, with the profile section: photo, display name and status note, and a note on what each network receives.](../../assets/beebeep/preferences-profile.png)
 
 It took about four and a half months, in three bursts with a quiet month
-between each. By the end there were 561 commits, about a hundred pull
-requests, and around 1,500 automated tests that run before any change goes
+between each. By the end there were 581 commits, about a hundred pull
+requests, and around 1,600 automated tests that run before any change goes
 in.
 
 The code is on GitHub, under the same license as the two original apps:
