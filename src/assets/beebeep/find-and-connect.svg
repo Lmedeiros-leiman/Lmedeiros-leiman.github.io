@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="486" viewBox="0 0 720 486" role="img" aria-labelledby="title">
+  <title id="title">How LAN Messenger and BeeBEEP find each other and connect</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#57606a"/>
+    </marker>
+    <style>
+      text { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; fill: #1f2328; }
+      .head { font-size: 18px; font-weight: 700; }
+      .title { font-size: 15px; font-weight: 600; }
+      .sub { font-size: 13px; fill: #424a53; }
+      .box { fill: #ffffff; stroke: #8c959f; stroke-width: 1.5; }
+      .line { stroke: #57606a; stroke-width: 1.5; }
+    </style>
+  </defs>
+  <rect width="720" height="486" fill="#f6f8fa"/>
+
+  <text class="head" x="185" y="38" text-anchor="middle">LAN Messenger</text>
+  <text class="head" x="535" y="38" text-anchor="middle">BeeBEEP</text>
+
+  <!-- LAN Messenger -->
+  <rect class="box" x="25" y="58" width="320" height="82" rx="8"/>
+  <text class="title" x="41" y="84">1. Call out over UDP, port 50000</text>
+  <text class="sub" x="41" y="106">XML "announce" with my user ID, to</text>
+  <text class="sub" x="41" y="126">multicast 239.255.100.100 and broadcast</text>
+  <line class="line" x1="185" y1="140" x2="185" y2="164" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="25" y="166" width="320" height="82" rx="8"/>
+  <text class="title" x="41" y="192">2. Connect over TCP, port 50000</text>
+  <text class="sub" x="41" y="214">whoever heard the call dials in and</text>
+  <text class="sub" x="41" y="234">sends MSG followed by its user ID</text>
+  <line class="line" x1="185" y1="248" x2="185" y2="272" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="25" y="274" width="320" height="82" rx="8"/>
+  <text class="title" x="41" y="300">3. Agree on a secret key</text>
+  <text class="sub" x="41" y="322">the other side sends its public key; the</text>
+  <text class="sub" x="41" y="342">caller returns a secret key locked with it</text>
+  <line class="line" x1="185" y1="356" x2="185" y2="380" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="25" y="382" width="320" height="82" rx="8"/>
+  <text class="title" x="41" y="408">4. Trade name, status and note</text>
+  <text class="sub" x="41" y="430">from here on, every message is</text>
+  <text class="sub" x="41" y="450">locked with the secret key</text>
+
+  <!-- BeeBEEP -->
+  <rect class="box" x="375" y="58" width="320" height="82" rx="8"/>
+  <text class="title" x="391" y="84">1. Call out over UDP, port 36475</text>
+  <text class="sub" x="391" y="106">BEE-BEEP with my TCP port, no name, to</text>
+  <text class="sub" x="391" y="126">multicast 224.0.64.75 and broadcast</text>
+  <line class="line" x1="535" y1="140" x2="535" y2="164" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="375" y="166" width="320" height="82" rx="8"/>
+  <text class="title" x="391" y="192">2. Connect over TCP, port 6475</text>
+  <text class="sub" x="391" y="214">whoever heard the call dials the</text>
+  <text class="sub" x="391" y="234">port named in it</text>
+  <line class="line" x1="535" y1="248" x2="535" y2="272" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="375" y="274" width="320" height="82" rx="8"/>
+  <text class="title" x="391" y="300">3. Swap hellos (BEE-CIAO)</text>
+  <text class="sub" x="391" y="322">name, status, version, a public number…</text>
+  <text class="sub" x="391" y="342">locked with a fixed key (more on it later)</text>
+  <line class="line" x1="535" y1="356" x2="535" y2="380" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="375" y="382" width="320" height="82" rx="8"/>
+  <text class="title" x="391" y="408">4. Both work out the same key</text>
+  <text class="sub" x="391" y="430">own secret number + the other's public</text>
+  <text class="sub" x="391" y="450">number; every later message uses it</text>
+</svg>
