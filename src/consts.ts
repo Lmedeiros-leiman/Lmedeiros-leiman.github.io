@@ -1,5 +1,5 @@
-// Place any global data in this file.
-// You can import this data from anywhere in your site by using the `import` keyword.
+// Site-wide data. Import from anywhere with `import { ... } from '../consts'`.
 
-export const SITE_TITLE = 'Astro Blog';
-export const SITE_DESCRIPTION = 'Welcome to my website!';
+export const SITE_TITLE = 'Leonardo Medeiros Leiman';
+export const SITE_DESCRIPTION = 'Posts by Leonardo Medeiros Leiman about things he built.';
+export const GITHUB_URL = 'https://github.com/Lmedeiros-leiman';
