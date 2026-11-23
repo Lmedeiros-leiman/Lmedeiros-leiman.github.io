@@ -1,141 +1,382 @@
 /*
-  The CSS in this style tag is based off of Bear Blog's default CSS.
-  https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
-  License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
- */
+  Site styles.
+
+  Two fonts: Newsreader (serif) for headings and post text, Atkinson
+  Hyperlegible (sans) for navigation, dates and other small text. Colours
+  are a warm paper palette with a brick-red accent; dark mode follows the
+  system setting.
+*/
 
 :root {
-	--accent: #2337ff;
-	--accent-dark: #000d8a;
-	--black: 15, 18, 25;
-	--gray: 96, 115, 159;
-	--gray-light: 229, 233, 240;
-	--gray-dark: 34, 41, 57;
-	--gray-gradient: rgba(var(--gray-light), 50%), #fff;
-	--box-shadow:
-		0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%),
-		0 16px 32px rgba(var(--gray), 33%);
+	--bg: #faf7f0;
+	--text: #201e1a;
+	--muted: #6b655a;
+	--accent: #a33d2d;
+	--rule: #e3dccf;
+	--code-bg: #f1ece1;
+	--selection: #efd5cf;
+
+	--font-mono:
+		ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+	--measure: 40rem;
+	--gutter: 1.25rem;
+
+	color-scheme: light;
 }
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #191816;
+		--text: #ece7dd;
+		--muted: #a79f92;
+		--accent: #e58a74;
+		--rule: #302d28;
+		--code-bg: #211f1b;
+		--selection: #4a3129;
+
+		color-scheme: dark;
+	}
+}
+
+@media (min-width: 40rem) {
+	:root {
+		--gutter: 2rem;
+	}
+}
+
+/* Base ------------------------------------------------------------------ */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	background: var(--bg);
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+}
+
 body {
-	font-family: var(--font-atkinson);
+	min-height: 100dvh;
+	display: flex;
+	flex-direction: column;
 	margin: 0;
-	padding: 0;
-	text-align: left;
-	background: linear-gradient(var(--gray-gradient)) no-repeat;
-	background-size: 100% 600px;
-	word-wrap: break-word;
+	font-family: var(--font-serif);
+	font-size: 1.125rem;
+	line-height: 1.65;
+	color: var(--text);
+	background: var(--bg);
 	overflow-wrap: break-word;
-	color: rgb(var(--gray-dark));
-	font-size: 20px;
-	line-height: 1.7;
+	-webkit-font-smoothing: antialiased;
 }
-main {
-	width: 720px;
-	max-width: calc(100% - 2em);
-	margin: auto;
-	padding: 3em 1em;
+
+@media (min-width: 40rem) {
+	body {
+		font-size: 1.1875rem;
+	}
 }
+
+::selection {
+	background: var(--selection);
+}
+
+:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 3px;
+	border-radius: 2px;
+}
+
+.wrap {
+	width: 100%;
+	max-width: calc(var(--measure) + 2 * var(--gutter));
+	margin-inline: auto;
+	padding-inline: var(--gutter);
+}
+
+main.wrap {
+	flex: 1 0 auto;
+	padding-top: 3rem;
+	padding-bottom: 4rem;
+}
+
+@media (min-width: 40rem) {
+	main.wrap {
+		padding-top: 4rem;
+	}
+}
+
+.skip-link {
+	position: absolute;
+	left: var(--gutter);
+	top: 0.5rem;
+	padding: 0.5rem 0.75rem;
+	background: var(--bg);
+	color: var(--text);
+	font-family: var(--font-sans);
+	font-size: 0.9375rem;
+	border: 1px solid var(--rule);
+	border-radius: 4px;
+	transform: translateY(-150%);
+}
+.skip-link:focus {
+	transform: none;
+	z-index: 10;
+}
+
+/* Text ------------------------------------------------------------------ */
+
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-	margin: 0 0 0.5rem 0;
-	color: rgb(var(--black));
+	font-family: var(--font-serif);
+	font-weight: 600;
+	letter-spacing: -0.01em;
 	line-height: 1.2;
+	color: var(--text);
+	margin: 0;
 }
-h1 {
-	font-size: 3.052em;
-}
-h2 {
-	font-size: 2.441em;
-}
-h3 {
-	font-size: 1.953em;
-}
-h4 {
-	font-size: 1.563em;
-}
-h5 {
-	font-size: 1.25em;
-}
-strong,
-b {
-	font-weight: 700;
-}
+
 a {
 	color: var(--accent);
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.16em;
+	text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+	transition: text-decoration-color 120ms ease;
 }
 a:hover {
-	color: var(--accent);
+	text-decoration-color: currentColor;
 }
-p {
-	margin-bottom: 1em;
+
+.page-title {
+	margin: 0 0 2rem;
+	font-size: clamp(2rem, 1.4rem + 2.6vw, 2.75rem);
+	letter-spacing: -0.02em;
+	line-height: 1.12;
 }
-.prose p {
-	margin-bottom: 2em;
+
+.section-title {
+	margin: 0 0 1rem;
+	font-family: var(--font-sans);
+	font-size: 0.8125rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--muted);
 }
-textarea {
-	width: 100%;
-	font-size: 16px;
+
+/* Small line of facts above a title: number, date, reading time. */
+.meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 0;
+	margin: 0;
+	font-family: var(--font-sans);
+	font-size: 0.875rem;
+	line-height: 1.5;
+	color: var(--muted);
 }
-input {
-	font-size: 16px;
+.meta > * + *::before {
+	content: '\00b7';
+	margin-inline: 0.5rem;
 }
-table {
-	width: 100%;
+
+/* Post body ------------------------------------------------------------- */
+
+.prose > * {
+	margin-block: 0 1.25em;
 }
-img {
+.prose > :last-child {
+	margin-bottom: 0;
+}
+
+.prose h2 {
+	margin-top: 2.25em;
+	margin-bottom: 0.6em;
+	font-size: 1.5rem;
+}
+.prose h3 {
+	margin-top: 1.75em;
+	margin-bottom: 0.5em;
+	font-size: 1.25rem;
+}
+.prose h4 {
+	margin-top: 1.5em;
+	margin-bottom: 0.5em;
+	font-size: 1.0625rem;
+}
+.prose > h2:first-child,
+.prose > h3:first-child {
+	margin-top: 0;
+}
+
+.prose ul,
+.prose ol {
+	padding-left: 1.5rem;
+}
+.prose li {
+	margin-block: 0.35em;
+}
+.prose li > ul,
+.prose li > ol {
+	margin-block: 0.35em 0;
+}
+.prose li::marker {
+	color: var(--muted);
+}
+
+.prose blockquote {
+	margin-inline: 0;
+	padding: 0.25rem 0 0.25rem 1.25rem;
+	border-left: 3px solid var(--accent);
+	color: var(--muted);
+}
+.prose blockquote > :last-child {
+	margin-bottom: 0;
+}
+
+.prose hr {
+	height: 1px;
+	margin-block: 2.5rem;
+	border: 0;
+	background: var(--rule);
+}
+
+.prose img,
+.prose video {
+	display: block;
 	max-width: 100%;
 	height: auto;
-	border-radius: 8px;
+	border-radius: 6px;
 }
-code {
-	padding: 2px 5px;
-	background-color: rgb(var(--gray-light));
-	border-radius: 2px;
+
+.prose figure {
+	margin-inline: 0;
 }
+.prose figcaption {
+	margin-top: 0.5rem;
+	font-family: var(--font-sans);
+	font-size: 0.875rem;
+	color: var(--muted);
+}
+
+.prose table {
+	display: block;
+	max-width: 100%;
+	overflow-x: auto;
+	border-collapse: collapse;
+	font-family: var(--font-sans);
+	font-size: 0.9375rem;
+	line-height: 1.5;
+}
+.prose th,
+.prose td {
+	padding: 0.5rem 0.75rem;
+	border-bottom: 1px solid var(--rule);
+	text-align: left;
+	vertical-align: top;
+}
+.prose th {
+	font-weight: 700;
+	border-bottom-width: 2px;
+}
+
+.prose kbd {
+	font-family: var(--font-mono);
+	font-size: 0.8125em;
+	padding: 0.1em 0.4em;
+	border: 1px solid var(--rule);
+	border-bottom-width: 2px;
+	border-radius: 4px;
+}
+
+/* Code ------------------------------------------------------------------ */
+
+code,
 pre {
-	padding: 1.5em;
-	border-radius: 8px;
+	font-family: var(--font-mono);
+	font-variant-ligatures: none;
+}
+
+code {
+	font-size: 0.875em;
+	padding: 0.1em 0.35em;
+	border-radius: 4px;
+	background: var(--code-bg);
+}
+
+pre {
+	margin: 0;
+	padding: 1rem 1.25rem;
+	font-size: 0.875rem;
+	line-height: 1.6;
+	border: 1px solid var(--rule);
+	border-radius: 6px;
+	overflow-x: auto;
+	tab-size: 2;
 }
 pre > code {
 	all: unset;
+	font-family: inherit;
 }
-blockquote {
-	border-left: 4px solid var(--accent);
-	padding: 0 0 0 20px;
-	margin: 0;
-	font-size: 1.333em;
+
+/* Shiki emits both themes; pick the right one and keep our own background. */
+pre.astro-code {
+	background-color: var(--code-bg) !important;
 }
-hr {
-	border: none;
-	border-top: 1px solid rgb(var(--gray-light));
-}
-@media (max-width: 720px) {
-	body {
-		font-size: 18px;
+@media (prefers-color-scheme: dark) {
+	pre.astro-code,
+	pre.astro-code span {
+		color: var(--shiki-dark) !important;
 	}
-	main {
-		padding: 1em;
+}
+/* Some theme colours are too faint on our tinted code background (WCAG AA
+   needs 4.5:1). Shiki only exposes them as inline styles, so match on those.
+   The light fixes must stay inside the light media query: they are more
+   specific than the dark rule above and would otherwise leak into dark mode. */
+@media (prefers-color-scheme: light) {
+	pre.astro-code span[style*='color:#6a737d' i] {
+		color: #5f6873 !important; /* comments: 4.09 -> 4.80 */
+	}
+	pre.astro-code span[style*='color:#d73a49' i] {
+		color: #b02a3a !important; /* keywords: 3.88 -> 5.50 */
+	}
+	pre.astro-code span[style*='color:#e36209' i] {
+		color: #a14a00 !important; /* variables, parameters: 2.96 -> 5.10 */
+	}
+	pre.astro-code span[style*='color:#22863a' i] {
+		color: #1d6f32 !important; /* tags, selectors: 3.93 -> 5.29 */
+	}
+}
+@media (prefers-color-scheme: dark) {
+	pre.astro-code span[style*='--shiki-dark:#8b8b8b94' i] {
+		color: #a39d93 !important; /* comments: 2.54 -> 6.11 */
+	}
+	pre.astro-code span[style*='--shiki-dark:#65737e' i] {
+		color: #8f9aa3 !important; /* markdown separators (---, ***): 3.37 -> 5.73 */
+	}
+	pre.astro-code span[style*='--shiki-dark:#00000050' i] {
+		color: #a39d93 !important; /* fenced code inside markdown: 1.11 -> 6.11 */
 	}
 }
 
+/* Utilities ------------------------------------------------------------- */
+
 .sr-only {
-	border: 0;
-	padding: 0;
-	margin: 0;
 	position: absolute !important;
-	height: 1px;
 	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
 	overflow: hidden;
-	/* IE6, IE7 - a 0 height clip, off to the bottom right of the visible 1px box */
-	clip: rect(1px 1px 1px 1px);
-	/* maybe deprecated but we need to support legacy browsers */
-	clip: rect(1px, 1px, 1px, 1px);
-	/* modern browsers, clip-path works inwards from each corner */
+	clip: rect(0, 0, 0, 0);
 	clip-path: inset(50%);
-	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
+	border: 0;
 }
