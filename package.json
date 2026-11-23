@@ -11,7 +11,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "check:writing": "node scripts/check-writing.mjs",
-    "test:writing": "node --test \"scripts/*.test.mjs\""
+    "test:writing": "node --test \"scripts/*.test.mjs\"",
+    "test": "node --test \"scripts/*.test.mjs\" \"src/utils/*.test.ts\""
   },
   "dependencies": {
     "@astrojs/mdx": "^8.1.2",
