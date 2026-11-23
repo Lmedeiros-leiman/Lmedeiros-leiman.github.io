@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="594" viewBox="0 0 720 594" role="img" aria-labelledby="title">
+  <title id="title">How LAN Messenger and BeeBEEP wrap one chat message</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#57606a"/>
+    </marker>
+    <style>
+      text { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; fill: #1f2328; }
+      .head { font-size: 18px; font-weight: 700; }
+      .title { font-size: 15px; font-weight: 600; }
+      .sub { font-size: 13px; fill: #424a53; }
+      .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace; font-size: 12.5px; fill: #424a53; }
+      .box { fill: #ffffff; stroke: #8c959f; stroke-width: 1.5; }
+      .start { fill: #fff8c5; stroke: #bf8700; stroke-width: 1.5; }
+      .line { stroke: #57606a; stroke-width: 1.5; fill: none; }
+    </style>
+  </defs>
+  <rect width="720" height="594" fill="#f6f8fa"/>
+
+  <rect class="start" x="230" y="16" width="260" height="40" rx="8"/>
+  <text class="title" x="360" y="41" text-anchor="middle">You type "hi" and press Enter</text>
+  <path class="line" d="M300 56 L185 86" marker-end="url(#arrow)"/>
+  <path class="line" d="M420 56 L535 86" marker-end="url(#arrow)"/>
+
+  <text class="head" x="185" y="108" text-anchor="middle">LAN Messenger</text>
+  <text class="head" x="535" y="108" text-anchor="middle">BeeBEEP</text>
+
+  <!-- LAN Messenger -->
+  <rect class="box" x="25" y="120" width="320" height="100" rx="8"/>
+  <text class="title" x="41" y="146">1. Write it as XML</text>
+  <text class="mono" x="41" y="168">&lt;lmcmessage&gt; with a head and a body</text>
+  <text class="sub" x="41" y="188">head: from, to, messageid, type=message</text>
+  <text class="sub" x="41" y="208">body: font, color, message=hi</text>
+  <line class="line" x1="185" y1="220" x2="185" y2="242" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="25" y="244" width="320" height="64" rx="8"/>
+  <text class="title" x="41" y="270">2. Lock it</text>
+  <text class="sub" x="41" y="292">AES, with the key from the handshake</text>
+  <line class="line" x1="185" y1="308" x2="185" y2="330" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="25" y="332" width="320" height="64" rx="8"/>
+  <text class="title" x="41" y="358">3. Tag it</text>
+  <text class="sub" x="41" y="380">MESSAG in front of the locked bytes</text>
+  <line class="line" x1="185" y1="396" x2="185" y2="418" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="25" y="420" width="320" height="64" rx="8"/>
+  <text class="title" x="41" y="446">4. Put the size label in front</text>
+  <text class="sub" x="41" y="468">the length, as a 4-byte number</text>
+  <line class="line" x1="185" y1="484" x2="185" y2="506" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="25" y="508" width="320" height="64" rx="8"/>
+  <text class="title" x="41" y="534">5. Send it</text>
+  <text class="sub" x="41" y="556">on the TCP line opened earlier</text>
+
+  <!-- BeeBEEP -->
+  <rect class="box" x="375" y="120" width="320" height="100" rx="8"/>
+  <text class="title" x="391" y="146">1. Write it as one line of 7 fields</text>
+  <text class="mono" x="391" y="168">BEE-CHAT·id·length·flags·</text>
+  <text class="mono" x="391" y="188">data·time·hi</text>
+  <text class="sub" x="391" y="208">· stands for an invisible separator</text>
+  <line class="line" x1="535" y1="220" x2="535" y2="242" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="375" y="244" width="320" height="82" rx="8"/>
+  <text class="title" x="391" y="270">2. Pad it and lock it</text>
+  <text class="sub" x="391" y="292">spaces until it fills whole 16-byte</text>
+  <text class="sub" x="391" y="312">blocks, then locked block by block</text>
+  <line class="line" x1="535" y1="326" x2="535" y2="348" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="375" y="350" width="320" height="64" rx="8"/>
+  <text class="title" x="391" y="376">3. Put the size label in front</text>
+  <text class="sub" x="391" y="398">4 bytes, but only 2 on the hello</text>
+  <line class="line" x1="535" y1="414" x2="535" y2="436" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="375" y="438" width="320" height="64" rx="8"/>
+  <text class="title" x="391" y="464">4. Send it</text>
+  <text class="sub" x="391" y="486">on the TCP line opened earlier</text>
+</svg>
