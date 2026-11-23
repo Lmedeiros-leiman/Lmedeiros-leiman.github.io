@@ -1,4 +1,5 @@
 import { type CollectionEntry, getCollection } from 'astro:content';
+import { readingTime } from './readingTime';
 
 export interface PostEntry {
 	post: CollectionEntry<'blog'>;
@@ -6,14 +7,6 @@ export interface PostEntry {
 	number: number;
 	/** Estimated reading time in whole minutes. */
 	minutes: number;
-}
-
-const WORDS_PER_MINUTE = 200;
-
-export function readingTime(body: string | undefined): number {
-	const text = (body ?? '').replace(/```[\s\S]*?```/g, ' ');
-	const words = text.split(/\s+/).filter(Boolean).length;
-	return Math.max(1, Math.round(words / WORDS_PER_MINUTE));
 }
 
 export function formatNumber(n: number): string {
